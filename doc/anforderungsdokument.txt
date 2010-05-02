@@ -1,0 +1,77 @@
+####
+## ANFORDERUNGSDOKUMENT
+####
+
+=== Zweck des Produkts ===
+AutoDJ ist eine Software zum Abspielen von MP3-Dateien. 
+In einer Playlist wird eine Liste von nacheinander abzuspielenden 
+MP3-Dateien abgelegt.
+
+AutoDJ speichert die abgespielten Dateien, sowie deren Vorgänger, und 
+zählt, wie oft eine Kombination von Dateien abgespielt wurde. Auf diese 
+Information wird später zugegriffen, um automatisch zu bestimmen, welche 
+Datei nach der momentan abgespielten Datei gespielt werden soll. Auf 
+diese Weise ist AutoDJ in der Lage, selbsttätig über längere Zeit Musik 
+zu spielen.
+
+AutoDJ ist einfach und intuitiv zu bedienen und für Benutzer unter einer
+Freien Softwarelizenz verfügbar.
+
+=== Abgrenzung ===
+AutoDJ ist kein Multi-Mediaplayer. Es werden keine Multimediaformate 
+außer MP3 unterstützt, vor allem keine Videoformate.
+
+=== Player ===
+Der eigentliche Player bietet eine Anzeige des Interpreten und des 
+Titels der momentan abgespielten MP3-Datei. Die Informationen kommen aus 
+dem ID3-Tag der MP3-Datei. 
+
+Es existieren Schaltflächen, mit denen das Abspielen der momentan 
+aktiven MP3-Datei gestartet, pausiert und gestoppt werden kann. Zwei 
+weitere Schaltflächen erlauben es, zur nächsten oder vorherigen Datei zu
+springen. Die Lautstärke der Audioausgabe kann geregelt werden.
+
+Der Fortschritt des Abspielens der momentan aktiven MP3-Datei wird über 
+einen Fortschrittsbalken visualisiert, ist allerdings auch anhand einer 
+Zeitanzeige ersichtlich, die bis zum Ende der MP3-Datei herunterzählt.
+
+=== Playlist ===
+In der Playlist wird eine Liste der zu spielenden Dateien angezeigt. Die 
+momentan aktive MP3-Datei wird fett gedruckt dargestellt. Die 
+Darstellung der einzelnen Dateien erfolgt durch die Anzeige von 
+Interpret, Titel, Album und Erscheinungsjahr. Diese Informationen 
+stammen aus den ID3-Tags der Dateien. Eine Sortierung nach diesen 
+Kriterien ist nicht möglich. 
+
+Benutzer können die Reihenfolge dieser Dateien durch geeignete Mittel 
+verändern. Dateien, die derzeit nicht abgespielt werden, können einfach
+aus der Liste entfernt werden.
+
+Wird das Ende einer MP3-Datei erreicht, so fährt AutoDJ mit dem 
+Abspielen der nächsten Datei aus der Playlist fort. Es wird gespeichert, 
+dass die beiden Dateien hintereinander gespielt wurden beziehungsweise, 
+wie oft diese beiden Dateien hintereinander gespielt wurden.
+
+=== Autoplay ===
+AutoDJ speichert, welche MP3-Dateien wie oft nach der momentan 
+abgespielten Datei gespielt wurden. Ist der momentan abgespielte Titel 
+der '''vorletzte''' in der Playlist, so versuchtdas Programm, eine 
+nachfolgende Datei zu der letzten Datei in der Playlist zu finden.
+Wurden mögliche Nachfolger der letzten Datei gespeichert, so fügt AutoDJ
+die am häufigsten verwendete Datei an die Playlist an. Existiert keine
+solche Datei, so spielt AutoDJ diese ('''vorletzte''') Datei zu Ende,
+gibt ein kurzes akustisches Signal aus, und fährt mit dem Abspielen der
+letzten Datei der Playlist fort. Ist auch diese Datei abgespielt, so
+stoppt die Wiedergabe.
+
+=== Vorschläge ===
+AutoDJ gibt dem Benutzer Vorschläge aus, welche Datei auf die momentan
+aktive MP3-Datei abgespielt werden könnte. Diese Vorschläge kommen
+einerseits aus den gespeicherten Daten, andererseits aus den "ähnlichen
+Titeln" der Website last.fm. Solche Vorschläge können per Doppelklick
+der Playlist hinzugefügt werden.
+
+=== Dateibrowser ===
+Ein Windows-Explorer-ähnlicher Dateimanager zeigt dem Benutzer an,
+welche MP3-Dateien auf der Festplatte gespeichert sind. Dateien können
+per Doppelklick der Playlist hinzugefügt werden.
