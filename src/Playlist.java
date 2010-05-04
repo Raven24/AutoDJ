@@ -1,4 +1,7 @@
+import java.util.Vector;
 
-public class Playlist {
+public class Playlist extends Vector<AudioFile> {
 
+	
+	
 }

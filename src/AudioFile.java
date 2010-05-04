@@ -66,4 +66,10 @@ public class AudioFile {
 		this.path = path;
 	}
 
+	/**
+	 * toString for easy debugging and printing
+	 */
+	public String toString() {
+		return title + " " + artist + ", located at: " + path.toString();
+	}
 }
