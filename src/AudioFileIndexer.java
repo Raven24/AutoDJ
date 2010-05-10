@@ -31,8 +31,9 @@ public class AudioFileIndexer {
 	 * TODO: implement in the subclass
 	 * 
 	 * @param path
+	 * @throws Exception 
 	 */
-	public void readFile(String path) {
+	public void readFile(String path) throws Exception {
 		return;
 	}
 }

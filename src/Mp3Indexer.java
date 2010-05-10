@@ -1,3 +1,6 @@
+import java.net.URI;
+import java.nio.ByteBuffer;
+import java.io.*;
 
 /**
  * class Mp3Indexer
@@ -9,6 +12,8 @@
  */
 public class Mp3Indexer extends AudioFileIndexer {
 
+	protected int tagSize = 128;	// size of an ID3 tag
+	
 	public void populateMetadata() {
 		byte[] tag = new byte[3];
         byte[] tagTitle = new byte[30];
@@ -32,6 +37,19 @@ public class Mp3Indexer extends AudioFileIndexer {
         comment	= new String(tagComment).trim();
         setGenre(tagGenre[0]);
         
+	}
+	
+	
+	public void readFile(String path) throws Exception {
+		URI uri = new URI(path);
+		File file = new File(uri);
+		RandomAccessFile raf = new RandomAccessFile(file, "r");
+		byte[] tagData = new byte[tagSize];
+		raf.seek(raf.length() - tagSize);
+		raf.read(tagData);
+		buff = ByteBuffer.allocate(tagSize);
+		buff.put(tagData);
+		buff.rewind();		
 	}
 	
 	/**
