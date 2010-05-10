@@ -1,7 +1,7 @@
 import java.nio.ByteBuffer;
 
 /**
- * class AudioFileIndexer
+ * abstract class AudioFileIndexer
  * 
  * provides an interface to read the metadata of an audio file
  * subclasses have to implement the actual parsing according to the file format
@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
  * @author Florian Staudacher <florian_staudacher@yahoo.de>
  *
  */
-public class AudioFileIndexer {
+abstract class AudioFileIndexer {
 
 	protected ByteBuffer buff;  // contains the actual audio file
 	
@@ -21,9 +21,7 @@ public class AudioFileIndexer {
 	 * 
 	 * TODO: implement in the subclasses
 	 */
-	public void populateMetadata() {
-		return;
-	}
+	abstract void populateMetadata();
 	
 	/**
 	 * opens the file and puts the metadata in ByteBuffer buff
@@ -33,7 +31,5 @@ public class AudioFileIndexer {
 	 * @param path
 	 * @throws Exception 
 	 */
-	public void readFile(String path) throws Exception {
-		return;
-	}
+	abstract void readFile(String path) throws Exception;
 }
