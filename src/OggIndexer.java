@@ -1,6 +1,6 @@
 import java.net.URI;
-import java.nio.ByteBuffer;
 import java.io.*;
+import java.util.HashMap;
 
 /**
  * class OggIndexer
@@ -24,28 +24,35 @@ public class OggIndexer extends AudioFileIndexer {
 	 */
 	protected int headerStart = 109;
 	protected int numberVorbisComments;
+	protected HashMap<String, String> vorbisComments;
 
-	void populateMetadata() {
-		// TODO Auto-generated method stub
-
+	public void populateMetadata() {
+		title 	= vorbisComments.get("title");
+		album	= vorbisComments.get("album");
+		artist	= vorbisComments.get("artist");
+		year	= vorbisComments.get("date");
+		genre	= vorbisComments.get("genre");
 	}
 	
 	/**
 	 * open the file, jump to the comment header and put it in the buffer
 	 */
-	void readFile(String path) throws Exception {
+	public void readFile(String path) throws Exception {
 		RandomAccessFile raf = new RandomAccessFile(new File(new URI(path)), "r");
 		raf.seek(109);
 		raf.skipBytes(raf.readInt()); // skip over the vendor string
 		numberVorbisComments = raf.readInt();
 		
-		int readLength = (int) raf.length()/4; 
-		byte[] tagData = new byte[readLength];
-		raf.read(tagData);
-				
-		buff = ByteBuffer.allocate(readLength); 
-		buff.put(tagData);
-		buff.rewind();	
+		for (int i = 0; i < numberVorbisComments; i++) {
+			int readLength =raf.readInt();
+			byte[] content = new byte[readLength];
+			raf.read(content);
+			addToMap(content);
+		}			
 	}
-
+	
+	protected void addToMap(byte[] pair) {
+		String[] vals = new String(pair).split("=");
+		vorbisComments.put(vals[0].toLowerCase(), vals[1]);
+	}
 }
