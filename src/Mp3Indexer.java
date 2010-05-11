@@ -41,12 +41,11 @@ public class Mp3Indexer extends AudioFileIndexer {
 	
 	
 	public void readFile(String path) throws Exception {
-		URI uri = new URI(path);
-		File file = new File(uri);
-		RandomAccessFile raf = new RandomAccessFile(file, "r");
+		RandomAccessFile raf = new RandomAccessFile(new File(new URI(path)), "r");
 		byte[] tagData = new byte[tagSize];
 		raf.seek(raf.length() - tagSize);
 		raf.read(tagData);
+		
 		buff = ByteBuffer.allocate(tagSize);
 		buff.put(tagData);
 		buff.rewind();		
