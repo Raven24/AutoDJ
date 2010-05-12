@@ -1,3 +1,5 @@
+package djay;
+
 import java.net.URI;
 import java.io.*;
 import java.util.HashMap;
@@ -26,6 +28,15 @@ public class OggIndexer extends AudioFileIndexer {
 	protected int numberVorbisComments;
 	protected HashMap<String, String> vorbisComments;
 
+	public OggIndexer(String path) {
+		filePath = path;
+		try {
+			readFile(path);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void populateMetadata() {
 		title 	= vorbisComments.get("title");
 		album	= vorbisComments.get("album");
@@ -55,5 +66,9 @@ public class OggIndexer extends AudioFileIndexer {
 	protected void addToMap(byte[] pair) {
 		String[] vals = new String(pair).split("=");
 		vorbisComments.put(vals[0].toLowerCase(), vals[1]);
+	}
+	
+	public String toString() {
+		return "Ogg-File: "+super.toString();
 	}
 }

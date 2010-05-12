@@ -1,5 +1,8 @@
+package djay;
+
 import java.nio.ByteBuffer;
 import java.io.File;
+import java.lang.Exception;
 
 /**
  * abstract class AudioFileIndexer
@@ -10,10 +13,11 @@ import java.io.File;
  * @author Florian Staudacher <florian_staudacher@yahoo.de>
  *
  */
-abstract class AudioFileIndexer {
+public abstract class AudioFileIndexer {
 
 	protected File audioFile;	// contains the file handle to the audio file
 	protected ByteBuffer buff;  // contains the actual metadata
+	protected String filePath; 
 	
 	// here comes the metadata
 	protected String title, artist, album, comment, genre, year;
@@ -42,7 +46,20 @@ abstract class AudioFileIndexer {
 	 * gets infos about the file, that are not music-related
 	 */
 	public void getFileInfo() {
+		populateMetadata();
 		lastModified = audioFile.lastModified();
 		length = audioFile.length();
+	}
+	
+	public static AudioFileIndexer initIndexer(String fileName) {
+		if(fileName.substring(fileName.length()-3).equalsIgnoreCase("mp3")) return new Mp3Indexer(fileName);
+		System.out.println("not an mp3");
+		if(fileName.substring(fileName.length()-3).equalsIgnoreCase("ogg")) return new OggIndexer(fileName);
+		System.out.println("not an ogg");
+		return null;
+	}
+	
+	public String toString() {
+		return title+" by "+artist;
 	}
 }

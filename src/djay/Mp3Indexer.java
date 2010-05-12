@@ -1,3 +1,5 @@
+package djay;
+
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.io.*;
@@ -14,7 +16,19 @@ public class Mp3Indexer extends AudioFileIndexer {
 
 	protected int tagSize = 128;	// size of an ID3 tag
 	
+	public Mp3Indexer(String path) {
+		filePath = path;
+		System.out.println("about to read an mp3");
+		try {
+			readFile(path);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void populateMetadata() {
+		System.out.println("about to read mp3 metadata");
+		
 		byte[] tag = new byte[3];
         byte[] tagTitle = new byte[30];
         byte[] tagArtist = new byte[30];
@@ -189,5 +203,9 @@ public class Mp3Indexer extends AudioFileIndexer {
 			case 125: genre	= "Dance Hall"; break;
 			default: return;
 		}
+	}
+	
+	public String toString() {
+		return "Mp3-File: "+super.toString();
 	}
 }
