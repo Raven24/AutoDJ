@@ -38,7 +38,8 @@ public class OggIndexer extends AudioFileIndexer {
 	 * open the file, jump to the comment header and put it in the buffer
 	 */
 	public void readFile(String path) throws Exception {
-		RandomAccessFile raf = new RandomAccessFile(new File(new URI(path)), "r");
+		audioFile = new File(new URI(path));
+		RandomAccessFile raf = new RandomAccessFile(audioFile, "r");
 		raf.seek(109);
 		raf.skipBytes(raf.readInt()); // skip over the vendor string
 		numberVorbisComments = raf.readInt();
