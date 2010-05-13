@@ -8,6 +8,8 @@ import java.util.HashMap;
  * class OggIndexer
  * 
  * provides the functionality to read metadata (VorbisComments) from Ogg Vorbis files
+ * Format specification can be found at
+ * http://xiph.org/vorbis/doc/Vorbis_I_spec.html
  * 
  * @author Florian Staudacher <florian_staudacher@yahoo.de>
  *
@@ -22,11 +24,12 @@ public class OggIndexer extends AudioFileIndexer {
 	 * - header package						= 7  bytes
 	 * -> vorbis comment header 			
 	 * 
-	 * thus the comment header starts somewhere around the 109th byte of the file 
+	 * thus the comment header starts somewhere around the 111th byte of the file 
 	 */
-	protected int headerStart = 109;
+	protected int headerStart = 111;
 	protected int numberVorbisComments;
 	protected HashMap<String, String> vorbisComments;
+	protected RandomAccessFile raf;
 
 	public OggIndexer(String path) {
 		filePath = path;
@@ -50,13 +53,16 @@ public class OggIndexer extends AudioFileIndexer {
 	 */
 	public void readFile(String path) throws Exception {
 		audioFile = new File(new URI(path));
-		RandomAccessFile raf = new RandomAccessFile(audioFile, "r");
-		raf.seek(109);
-		raf.skipBytes(raf.readInt()); // skip over the vendor string
-		numberVorbisComments = raf.readInt();
+		raf = new RandomAccessFile(audioFile, "r");
+		raf.seek(headerStart);
+		int venLen = getIntFromBuff();
+		raf.skipBytes(venLen); // skip over the vendor string
+		
+		numberVorbisComments = getIntFromBuff();
+		vorbisComments = new HashMap<String, String> ();
 		
 		for (int i = 0; i < numberVorbisComments; i++) {
-			int readLength =raf.readInt();
+			int readLength = getIntFromBuff();
 			byte[] content = new byte[readLength];
 			raf.read(content);
 			addToMap(content);
@@ -67,6 +73,39 @@ public class OggIndexer extends AudioFileIndexer {
 		String[] vals = new String(pair).split("=");
 		vorbisComments.put(vals[0].toLowerCase(), vals[1]);
 	}
+	
+	/**
+	 * how nice, java only uses big endian encoding, we need little endian
+	 * also, all integers are signed per default, which cannot be turned off
+	 * ... therefore we need to juggle around some bytes by hand
+	 */
+	protected int getIntFromBuff() {
+		byte[] tmp = new byte[4];
+		try {
+			raf.read(tmp);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return unsignedBytesToInt(tmp);
+	}
+	
+	protected int unsignedBytesToInt(byte[] buf) {
+		int i = 0;
+		for (int k = 0; k < 4; k++) {
+			i += unsignedByteToInt(buf[k]) << (24-(8*k)); 
+		}
+		return swabInt(i);
+	}
+	
+	protected int unsignedByteToInt(byte b) {
+	    return (int) b & 0xFF;
+	}
+
+	protected int swabInt(int v) {
+	    return  (v >>> 24) | (v << 24) | 
+	      ((v << 8) & 0x00FF0000) | ((v >> 8) & 0x0000FF00);
+	}
+
 	
 	public String toString() {
 		return "Ogg-File: "+super.toString();
