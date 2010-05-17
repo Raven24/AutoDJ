@@ -51,9 +51,19 @@ public abstract class AudioFileIndexer {
 		length = audioFile.length();
 	}
 	
+	/**
+	 * return the matching indexer determined by the file extension
+	 * 
+	 * @param fileName
+	 * @return
+	 */
 	public static AudioFileIndexer initIndexer(String fileName) {
-		if(fileName.substring(fileName.length()-3).equalsIgnoreCase("mp3")) return new Mp3Indexer(fileName);
-		if(fileName.substring(fileName.length()-3).equalsIgnoreCase("ogg")) return new OggIndexer(fileName);
+		String ext = fileName.substring(fileName.length()-3);
+				
+		if(ext.equalsIgnoreCase("mp3")) return new Mp3Indexer(fileName);
+		if(ext.equalsIgnoreCase("ogg") ||
+		   ext.equalsIgnoreCase("oga")) return new OggIndexer(fileName);
+		
 		System.out.println("unknown filetype");
 		return null;
 	}
