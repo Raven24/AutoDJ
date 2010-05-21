@@ -1,6 +1,5 @@
 package djay;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.io.*;
 
@@ -15,10 +14,10 @@ import java.io.*;
 public class Mp3Indexer extends AudioFileIndexer {
 
 	protected int tagSize = 128;	// size of an ID3 tag
+	protected int version = 0;
 	
 	public Mp3Indexer(String path) {
 		filePath = path;
-		System.out.println("about to read an mp3");
 		try {
 			readFile(path);
 		} catch (Exception e) {
@@ -27,8 +26,14 @@ public class Mp3Indexer extends AudioFileIndexer {
 	}
 	
 	public void populateMetadata() {
-		System.out.println("about to read mp3 metadata");
+		if (version == 1) {
+			populateMetadataV1();
+		} else if (version == 2) {
+			populateMetadataV2();
+		}
+	}
 		
+	protected void populateMetadataV1() {
 		byte[] tag = new byte[3];
         byte[] tagTitle = new byte[30];
         byte[] tagArtist = new byte[30];
@@ -36,6 +41,7 @@ public class Mp3Indexer extends AudioFileIndexer {
         byte[] tagYear = new byte[4];
         byte[] tagComment = new byte[30];
         byte[] tagGenre = new byte[1];
+        
         buff.get(tag).get(tagTitle).get(tagArtist).get(tagAlbum)
                         .get(tagYear).get(tagComment).get(tagGenre);
         if(!"TAG".equals(new String(tag))){
@@ -53,13 +59,166 @@ public class Mp3Indexer extends AudioFileIndexer {
         
 	}
 	
+	protected void populateMetadataV2() {
+		while(true) {
+			if(!readID3v2Tag()) break;
+		}
+		
+	}
+	
+	protected boolean readID3v2Tag() {
+		byte[] frame = new byte[4];
+	
+		buff.get(frame);
+		int length = buff.getInt();
+		buff.get(); buff.get(); // skip three bytes
+		String ident = new String(frame);
+		
+		//System.out.println(ident+": "+length);
+		
+		if(ident.startsWith("ID3")) {
+			//ignore
+		} else if ("AENC".equals(ident)) { skipBytes(length);
+		} else if ("APIC".equals(ident)) { skipBytes(length);
+			
+		} else if ("COMM".equals(ident)) { // comments
+			comment = getID3v2Text(length);
+		} else if ("COMR".equals(ident)) { skipBytes(length);
+			
+		} else if ("ENCR".equals(ident)) { skipBytes(length);
+		} else if ("EQUA".equals(ident)) { skipBytes(length);
+		} else if ("ETCO".equals(ident)) { skipBytes(length);
+			
+		} else if ("GEOB".equals(ident)) { skipBytes(length);
+		} else if ("GRID".equals(ident)) { skipBytes(length);
+			
+		} else if ("IPLS".equals(ident)) { skipBytes(length);
+			
+		} else if ("LINK".equals(ident)) { skipBytes(length);
+			
+		} else if ("MCDI".equals(ident)) { skipBytes(length);
+		} else if ("MLLT".equals(ident)) { skipBytes(length);
+			
+		} else if ("OWNE".equals(ident)) { skipBytes(length);
+			
+		} else if ("PRIV".equals(ident)) { skipBytes(length);
+		} else if ("PCNT".equals(ident)) { // play counter 
+			 getID3v2Text(length);
+		} else if ("POPM".equals(ident)) { skipBytes(length);
+		} else if ("POSS".equals(ident)) { skipBytes(length);
+			
+		} else if ("RBUF".equals(ident)) { skipBytes(length);
+		} else if ("RVAD".equals(ident)) { skipBytes(length);
+		} else if ("RVRB".equals(ident)) { skipBytes(length);
+			
+		} else if ("TALB".equals(ident)) {
+			album = getID3v2Text(length);
+		} else if ("TBPM".equals(ident)) { skipBytes(length);
+		} else if ("TCOM".equals(ident)) { skipBytes(length);
+		} else if ("TCON".equals(ident)) {
+			genre = getID3v2Text(length);
+		} else if ("TDAT".equals(ident)) { skipBytes(length);
+		} else if ("TDLY".equals(ident)) { skipBytes(length);
+		} else if ("TENC".equals(ident)) { skipBytes(length);
+		} else if ("TEXT".equals(ident)) { skipBytes(length);
+		} else if ("TFLT".equals(ident)) { skipBytes(length);
+		} else if ("TIME".equals(ident)) { skipBytes(length);
+		} else if ("TIT1".equals(ident)) { skipBytes(length);
+		} else if ("TIT2".equals(ident)) {
+			title = getID3v2Text(length);
+		} else if ("TIT3".equals(ident)) { skipBytes(length);
+		} else if ("TKEY".equals(ident)) { skipBytes(length);
+		} else if ("TLAN".equals(ident)) { skipBytes(length);
+		} else if ("TLEN".equals(ident)) { skipBytes(length);
+		} else if ("TMED".equals(ident)) { skipBytes(length);
+		} else if ("TOAL".equals(ident)) { skipBytes(length);
+		} else if ("TOFN".equals(ident)) { skipBytes(length);
+		} else if ("TOLY".equals(ident)) { skipBytes(length);
+		} else if ("TOPE".equals(ident)) { skipBytes(length);
+		} else if ("TORY".equals(ident)) { skipBytes(length);
+		} else if ("TOWN".equals(ident)) { skipBytes(length);
+		} else if ("TPE1".equals(ident)) {
+			artist = getID3v2Text(length);
+		} else if ("TPE2".equals(ident)) { skipBytes(length);
+		} else if ("TPE3".equals(ident)) { skipBytes(length);
+		} else if ("TPE4".equals(ident)) { skipBytes(length);
+		} else if ("TPOS".equals(ident)) { skipBytes(length);
+		} else if ("TPUB".equals(ident)) { skipBytes(length);
+		} else if ("TRCK".equals(ident)) { skipBytes(length);
+		} else if ("TRDA".equals(ident)) { skipBytes(length);
+		} else if ("TRSN".equals(ident)) { skipBytes(length);
+		} else if ("TRSO".equals(ident)) { skipBytes(length);
+		} else if ("TSIZ".equals(ident)) { skipBytes(length);
+		} else if ("TSRC".equals(ident)) { skipBytes(length);
+		} else if ("TSSE".equals(ident)) { skipBytes(length);
+		} else if ("TYER".equals(ident)) {
+			year = getID3v2Text(length);
+		} else if ("TXXX".equals(ident)) { skipBytes(length);
+			
+		} else if ("UFID".equals(ident)) { skipBytes(length);
+		} else if ("USER".equals(ident)) { skipBytes(length);
+		} else if ("USLT".equals(ident)) { skipBytes(length);
+			
+		} else if ("WCOM".equals(ident)) { skipBytes(length);
+		} else if ("WCOP".equals(ident)) { skipBytes(length);
+		} else if ("WOAF".equals(ident)) { skipBytes(length);
+		} else if ("WOAR".equals(ident)) { skipBytes(length);
+		} else if ("WOAS".equals(ident)) { skipBytes(length);
+		} else if ("WORS".equals(ident)) { skipBytes(length);
+		} else if ("WPAY".equals(ident)) { skipBytes(length);
+		} else if ("WPUB".equals(ident)) { skipBytes(length);
+		} else if ("WXXX".equals(ident)) { skipBytes(length);
+		} else {		
+			return false;
+		}
+		return true;
+	}
+	
+	protected String getID3v2Text(int size) {
+		byte[] data = new byte[size];
+		buff.get(data);
+		return new String(data).substring(1);
+	}
+	
+	protected void skipBytes(int size) {
+		buff.position(buff.position()+size);
+	}
 	
 	public void readFile(String path) throws Exception {
-		audioFile = new File(new URI(path));
-		RandomAccessFile raf = new RandomAccessFile(audioFile, "r");
-		byte[] tagData = new byte[tagSize];
-		raf.seek(raf.length() - tagSize);
-		raf.read(tagData);
+		audioFile = new File(path);
+		raf = new RandomAccessFile(audioFile, "r");
+		
+		byte[] tagData;
+		byte[] check = new byte[3];
+		raf.read(check);
+		
+		if('I' == check[0] &&
+			'D' == check[1] &&
+			'3' == check[2]) {
+			// ID3 v2
+			
+			raf.skipBytes(3); // skip the version & flags
+			byte[] size = new byte[4];
+			raf.read(size);
+			
+			tagSize  = (0xFF & size[0]) << 24 ;
+			tagSize |= (0xFF & size[1]) << 16;
+			tagSize |= (0xFF & size[2]) << 8;
+			tagSize |= (0xFF & size[3]);
+			
+			tagData = new byte[tagSize];
+
+			raf.seek(0);
+			raf.read(tagData);
+			version = 2;
+		} else {
+			// ID3 v1
+
+			tagData = new byte[tagSize];
+			raf.seek(raf.length() - tagSize);
+			raf.read(tagData);
+			version = 1;
+		}
 		
 		buff = ByteBuffer.allocate(tagSize);
 		buff.put(tagData);
@@ -67,7 +226,7 @@ public class Mp3Indexer extends AudioFileIndexer {
 	}
 	
 	/**
-	 * setting the genre according to the ID3 specification
+	 * setting the genre according to the ID3v1 specification
 	 * http://id3.org/d3v2.3.0
 	 * 
 	 * @param num

@@ -1,6 +1,5 @@
 package djay;
 
-import java.net.URI;
 import java.io.*;
 import java.util.HashMap;
 
@@ -17,7 +16,7 @@ import java.util.HashMap;
 public class OggIndexer extends AudioFileIndexer {
 	
 	/**
-	 * - ogg container header 				= 28 bytes
+	 * - ogg container header 				= 27 bytes
 	 * - header package						= 7  bytes
 	 * - vorbis identification header 		= 22 bytes
 	 * - ogg container footer/next header	= 45 bytes
@@ -29,7 +28,6 @@ public class OggIndexer extends AudioFileIndexer {
 	protected int headerStart = 111;
 	protected int numberVorbisComments;
 	protected HashMap<String, String> vorbisComments;
-	protected RandomAccessFile raf;
 
 	public OggIndexer(String path) {
 		filePath = path;
@@ -52,11 +50,14 @@ public class OggIndexer extends AudioFileIndexer {
 	 * open the file, jump to the comment header and put it in the buffer
 	 */
 	public void readFile(String path) throws Exception {
-		audioFile = new File(new URI(path));
+		audioFile = new File(path);
 		raf = new RandomAccessFile(audioFile, "r");
-		raf.seek(headerStart);
+		raf.skipBytes(58); // that's the file identification header: not interesting
+		readOggHeader();   // we need to read that in order to know where to start looking
+		raf.skipBytes(7);  // comment header identification: don't need that
+		
 		int venLen = getIntFromBuff();
-		raf.skipBytes(venLen); // skip over the vendor string
+		raf.skipBytes(venLen); // skip over the vendor string (always the same)
 		
 		numberVorbisComments = getIntFromBuff();
 		vorbisComments = new HashMap<String, String> ();
@@ -68,46 +69,40 @@ public class OggIndexer extends AudioFileIndexer {
 			addToMap(content);
 		}			
 	}
+		
+	public String toString() {
+		return "Ogg-File: "+super.toString();
+	}
 	
 	protected void addToMap(byte[] pair) {
 		String[] vals = new String(pair).split("=");
 		vorbisComments.put(vals[0].toLowerCase(), vals[1]);
 	}
 	
-	/**
-	 * how nice, java only uses big endian encoding, we need little endian
-	 * also, all integers are signed per default, which cannot be turned off
-	 * ... therefore we need to juggle around some bytes by hand
-	 */
-	protected int getIntFromBuff() {
-		byte[] tmp = new byte[4];
-		try {
+	protected void readOggHeader() throws Exception {
+		byte[] header = new byte[27];
+		raf.readFully(header);
+		
+		if(!(header[0] == 'O' &&
+		   header[1] == 'g' &&
+		   header[2] == 'g' &&
+		   header[3] == 'S')) {
+			
+			// this is not an ogg! let's exit
+			return;
+		}
+		
+		// we skip version, granule position, serial number, sequence number and check sum
+		// makes 22 bytes + 4 from "OggS" = 26
+		
+		int pageSegments = (int)header[26];
+		int totalLength = 0;
+		
+		for (int i = 0; i < pageSegments; i++) {
+			int l=0; byte[] tmp = new byte[1];
 			raf.read(tmp);
-		} catch (Exception e) {
-			e.printStackTrace();
+			l=tmp[0]&0xff;
+			totalLength += l;
 		}
-		return unsignedBytesToInt(tmp);
-	}
-	
-	protected int unsignedBytesToInt(byte[] buf) {
-		int i = 0;
-		for (int k = 0; k < 4; k++) {
-			i += unsignedByteToInt(buf[k]) << (24-(8*k)); 
-		}
-		return swabInt(i);
-	}
-	
-	protected int unsignedByteToInt(byte b) {
-	    return (int) b & 0xFF;
-	}
-
-	protected int swabInt(int v) {
-	    return  (v >>> 24) | (v << 24) | 
-	      ((v << 8) & 0x00FF0000) | ((v >> 8) & 0x0000FF00);
-	}
-
-	
-	public String toString() {
-		return "Ogg-File: "+super.toString();
 	}
 }

@@ -2,6 +2,7 @@ package djay;
 
 import java.nio.ByteBuffer;
 import java.io.File;
+import java.io.RandomAccessFile;
 import java.lang.Exception;
 
 /**
@@ -17,6 +18,7 @@ public abstract class AudioFileIndexer {
 
 	protected File audioFile;	// contains the file handle to the audio file
 	protected ByteBuffer buff;  // contains the actual metadata
+	protected RandomAccessFile raf;
 	protected String filePath; 
 	
 	// here comes the metadata
@@ -46,6 +48,7 @@ public abstract class AudioFileIndexer {
 	 * gets infos about the file, that are not music-related
 	 */
 	public void getFileInfo() {
+		//System.out.println(filePath);
 		populateMetadata();
 		lastModified = audioFile.lastModified();
 		length = audioFile.length();
@@ -69,6 +72,57 @@ public abstract class AudioFileIndexer {
 	}
 	
 	public String toString() {
-		return title+" by "+artist;
+		return title+" by "+artist; //+"\n\t"+filePath;
+	}
+
+	
+	/**
+	 * how nice, java only uses big endian encoding, we need little endian
+	 * also, all integers are signed per default, which cannot be turned off
+	 * ... therefore we need to juggle around some bytes by hand
+	 */
+	protected int getIntFromBuff() {
+		byte[] tmp = new byte[4];
+		try {
+			raf.read(tmp);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return unsignedBytesToInt(tmp);
+	}
+	
+/*	protected long getLongFromBuff() {
+		byte[] tmp = new byte[8];		
+		try {
+			raf.read(tmp);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return unsignedBytesToLong(tmp);
+	}
+	
+	protected long unsignedBytesToLong(byte[] tmp) {
+		long res = 0;
+		for(int i=0; i<tmp.length; i++) {
+               res|=(1L<<i);
+        }
+		return res;
+	}*/
+	
+	protected int unsignedBytesToInt(byte[] buf) {
+		int i = 0;
+		for (int k = 0; k < 4; k++) {
+			i += unsignedByteToInt(buf[k]) << (24-(8*k)); 
+		}
+		return swabInt(i);
+	}
+	
+	protected int unsignedByteToInt(byte b) {
+	    return (int) b & 0xFF;
+	}
+
+	protected int swabInt(int v) {
+	    return  (v >>> 24) | (v << 24) | 
+	      ((v << 8) & 0x00FF0000) | ((v >> 8) & 0x0000FF00);
 	}
 }
