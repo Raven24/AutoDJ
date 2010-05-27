@@ -76,7 +76,9 @@ public class OggIndexer extends AudioFileIndexer {
 	
 	protected void addToMap(byte[] pair) {
 		String[] vals = new String(pair).split("=");
-		vorbisComments.put(vals[0].toLowerCase(), vals[1]);
+		if (vals.length > 1) {
+			vorbisComments.put(vals[0].toLowerCase(), vals[1]);
+		}
 	}
 	
 	protected void readOggHeader() throws Exception {

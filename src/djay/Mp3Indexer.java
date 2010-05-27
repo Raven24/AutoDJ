@@ -1,5 +1,6 @@
 package djay;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.io.*;
 
@@ -45,9 +46,10 @@ public class Mp3Indexer extends AudioFileIndexer {
         buff.get(tag).get(tagTitle).get(tagArtist).get(tagAlbum)
                         .get(tagYear).get(tagComment).get(tagGenre);
         if(!"TAG".equals(new String(tag))){
-                throw new IllegalArgumentException(
-                        "ByteBuffer does not contain ID3 tag data"
-                );
+        //        throw new IllegalArgumentException(
+        //                "ByteBuffer does not contain ID3 tag data"
+        //        );
+        	return;
         }
         
         title 	= new String(tagTitle).trim();
@@ -68,10 +70,16 @@ public class Mp3Indexer extends AudioFileIndexer {
 	
 	protected boolean readID3v2Tag() {
 		byte[] frame = new byte[4];
+		int length;
 	
-		buff.get(frame);
-		int length = buff.getInt();
-		buff.get(); buff.get(); // skip three bytes
+		try {
+			buff.get(frame);
+			length = buff.getInt();
+			buff.get(); buff.get(); // skip three bytes
+		} catch (Exception e) {
+			return false;
+		}
+		
 		String ident = new String(frame);
 		
 		//System.out.println(ident+": "+length);
@@ -129,7 +137,9 @@ public class Mp3Indexer extends AudioFileIndexer {
 		} else if ("TIT3".equals(ident)) { skipBytes(length);
 		} else if ("TKEY".equals(ident)) { skipBytes(length);
 		} else if ("TLAN".equals(ident)) { skipBytes(length);
-		} else if ("TLEN".equals(ident)) { skipBytes(length);
+		} else if ("TLEN".equals(ident)) { 
+			//System.out.println(getID3v2Text(length));
+			skipBytes(length);
 		} else if ("TMED".equals(ident)) { skipBytes(length);
 		} else if ("TOAL".equals(ident)) { skipBytes(length);
 		} else if ("TOFN".equals(ident)) { skipBytes(length);
@@ -144,7 +154,9 @@ public class Mp3Indexer extends AudioFileIndexer {
 		} else if ("TPE4".equals(ident)) { skipBytes(length);
 		} else if ("TPOS".equals(ident)) { skipBytes(length);
 		} else if ("TPUB".equals(ident)) { skipBytes(length);
-		} else if ("TRCK".equals(ident)) { skipBytes(length);
+		} else if ("TRCK".equals(ident)) { 
+			//System.out.println(getID3v2Text(length));
+			skipBytes(length);
 		} else if ("TRDA".equals(ident)) { skipBytes(length);
 		} else if ("TRSN".equals(ident)) { skipBytes(length);
 		} else if ("TRSO".equals(ident)) { skipBytes(length);
@@ -176,12 +188,21 @@ public class Mp3Indexer extends AudioFileIndexer {
 	
 	protected String getID3v2Text(int size) {
 		byte[] data = new byte[size];
-		buff.get(data);
-		return new String(data).substring(1);
+		try{
+			buff.get(data);
+			return new String(data).substring(1);
+		} catch (BufferUnderflowException e) {
+			//e.printStackTrace();
+		}
+		return "";
 	}
 	
 	protected void skipBytes(int size) {
-		buff.position(buff.position()+size);
+		try { 
+			buff.position(buff.position()+size);
+		} catch (IllegalArgumentException e) {
+			//e.printStackTrace();
+		}
 	}
 	
 	public void readFile(String path) throws Exception {
