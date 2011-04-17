@@ -3,6 +3,23 @@ package djay.tests;
 import djay.AudioFileIndexer;
 import java.io.*;
 
+/**
+ * This class produces a test executeable to check the functionality 
+ * of metadata parsing from audio file headers.
+ * 
+ * The binary can be called with the following parameters
+ * 
+ * -f/--readMp3/--readOgg
+ * 		takes an _absolute_ filename and analyzes a the file
+ * 		prints out the metadata
+ * -d/--readDir
+ * 		takes an _absolute_ directory and analyzes all audio files
+ * 		it finds inside. prints out the metadata of each file
+ * 
+ * @author Florian Staudacher
+ *
+ */
+
 
 public class UnitTests {
 
