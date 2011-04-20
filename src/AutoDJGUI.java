@@ -152,7 +152,7 @@ public class AutoDJGUI extends Observable {
 		rescanButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setChanged();
-				notifyObservers(new Integer(1));
+				notifyObservers(new ObserverMessage(ObserverMessage.RESCAN_LIBRARY));
 			}
 		});
 		c.gridx = 0;

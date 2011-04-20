@@ -107,11 +107,20 @@ public class AutoDJCore implements Observer {
 	// end visitAllDirsAndFiles()
 
 	@Override
-	public void update(Observable arg0, Object arg1) {
+	public void update(Observable arg0, Object m) {
 		// TODO Auto-generated method stub
-		if (arg1 instanceof Integer) {
-			System.out.println("Button pressed");
-			rescanDatabase ();
+		if (m instanceof ObserverMessage) {
+			ObserverMessage message = (ObserverMessage) m;
+			if (message.getMessage()==ObserverMessage.PLAY) {
+				//someone told us to play
+			} else if (message.getMessage()==ObserverMessage.PAUSE) {
+				//someone told us to stop playing
+			} else if (message.getMessage()==ObserverMessage.RESCAN_LIBRARY) {
+				System.out.println("Button pressed");
+				rescanDatabase ();
+			}
+		} else {
+			System.out.println ("Unknown Observer-Message caught!");
 		}
 	}
 
