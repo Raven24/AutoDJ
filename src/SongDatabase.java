@@ -1,8 +1,10 @@
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Vector;
 
 public class SongDatabase {
 
@@ -111,7 +113,46 @@ public class SongDatabase {
 	        System.out.println("VendorError: " + ex.getErrorCode());
 	        System.out.println("occured for song " + song.getArtist() + " - " + song.getTitle());
 		}
-		
-		
 	}
+	
+	/*
+	 * 
+	 * get songlist from the DB
+	 * 
+	 */
+	public Vector<Song> getSongs (String search) {
+		Vector<Song> songList = new Vector<Song>();
+		try {
+			createConnection();
+			Statement statement = conn.createStatement();
+			String query="SELECT * FROM songs WHERE ";
+			query+="artist LIKE \"%" + search +"%\" OR ";
+			query+="title LIKE \"%" + search +"%\" OR ";
+			query+="album LIKE \"%" + search +"%\"";
+			// TODO
+			//System.out.println(query);
+			ResultSet rs = statement.executeQuery(query);
+			while(rs.next()) {
+				int id = rs.getInt("id");
+				String artist = rs.getString("artist");
+				String title = rs.getString("title");
+				int trackno = rs.getInt("trackno");
+				String album = rs.getString("album");
+				int year = rs.getInt("year");
+				File filename = new File (rs.getString("filename"));
+				String md5sum = rs.getString("md5sum");
+				Song thisSong = new Song (id, artist, title, trackno, album, year, filename, md5sum);
+				songList.add(thisSong);
+			}
+			closeConnection();
+		} catch (SQLException ex) {
+	        System.out.println("SQLException: " + ex.getMessage());
+	        System.out.println("SQLState: " + ex.getSQLState());
+	        System.out.println("VendorError: " + ex.getErrorCode());
+		}
+		return songList;
+	}	
+	
+	
+	
 }

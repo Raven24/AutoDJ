@@ -3,6 +3,9 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Observable;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -19,18 +22,19 @@ import javax.swing.JToggleButton;
 import javax.swing.border.EtchedBorder;
 
 
-public class AutoDJGUI extends JFrame {
-	private static final long serialVersionUID = 1L;
+public class AutoDJGUI extends Observable {
+	private JFrame gui;
 	private JPanel mainPanel;
 	private JPanel imagePanel;
 	private JPanel configPanel;
 	private JPanel playerPanel;
 
 	public AutoDJGUI (String appName) {
+		gui = new JFrame();
 		// close program on GUI exit
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// set title of window to application name
-		this.setTitle(appName);
+		gui.setTitle(appName);
 		
 		// build main panel for playlist and library
 		createMainPanel();
@@ -43,11 +47,11 @@ public class AutoDJGUI extends JFrame {
 		mainPane.addTab( "Playlist and Library", mainPanel );
 		mainPane.addTab( "Album Cover", imagePanel );
 		mainPane.addTab( "Configuration", configPanel );
-		add(mainPane, BorderLayout.CENTER);
+		gui.add(mainPane, BorderLayout.CENTER);
 		
 		// create player panel
 		createPlayerPanel();
-		add(playerPanel, BorderLayout.PAGE_END);
+		gui.add(playerPanel, BorderLayout.PAGE_END);
     }
 	
 	public void createPlayerPanel() {
@@ -145,6 +149,12 @@ public class AutoDJGUI extends JFrame {
 		GridBagConstraints c = new GridBagConstraints();
 		
 		JButton rescanButton = new JButton("Rescan Library");
+		rescanButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setChanged();
+				notifyObservers(new Integer(1));
+			}
+		});
 		c.gridx = 0;
 		c.gridy = 0;
 		c.insets=new Insets(5,5,5,5);
@@ -168,4 +178,18 @@ public class AutoDJGUI extends JFrame {
 		configPanel.add(logPanel, c);
 		logPanel.append("AutoDJ started!\n");
 	}
+
+
+	public void setLocation(int x, int y) {
+		gui.setLocation(x,y);
+	}
+	
+	public void setSize(int x, int y) {
+		gui.setSize(x,y);
+	}
+	
+	public void setVisible(boolean b) {
+		gui.setVisible(b);
+	}
+
 }

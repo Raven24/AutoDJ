@@ -184,4 +184,16 @@ public class Song {
 		retval+="file has a MD5sum of " + getMD5sum();
 		return retval;
 	}
+	
+	/*
+	 * 
+	 * compare 2 songs
+	 * 
+	 */
+	public boolean equals(Song song2) {
+		if (this.getMD5sum().compareTo(song2.getMD5sum())==0) {
+			if (this.getFile().compareTo(song2.getFile())==0) return true;
+		}
+		return false;
+	}
 }
