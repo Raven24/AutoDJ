@@ -40,7 +40,7 @@ public class SongDatabase {
 	
 	/**
 	 * Creates a new SongDatabase instance to work with and checks, if the
-	 * database exists, the a connection is accepted and the tables have
+	 * database exists, if a connection is accepted and the tables have
 	 * the correct format.
 	 * TODO: actually check if the tables have the correct format. Maybe
 	 * also do some sanity-checking on the table: Is there only one entry

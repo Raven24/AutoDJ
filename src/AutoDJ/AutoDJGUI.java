@@ -76,7 +76,7 @@ public class AutoDJGUI extends Observable {
 		gui.add(playerPanel, BorderLayout.PAGE_END);
     }
 	
-	public void createPlayerPanel() {
+	private void createPlayerPanel() {
 		playerPanel = new JPanel();
 		playerPanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -109,7 +109,7 @@ public class AutoDJGUI extends Observable {
 		playerPanel.add(nextSongButton, c);
 	}
 	
-	public void createMainPanel() {
+	private void createMainPanel() {
 		// TODO
 		// create a string array to display in the jlists
 		// remove this when possible
@@ -151,7 +151,7 @@ public class AutoDJGUI extends Observable {
 		mainPanel.add(libraryList, rightConstraints);
 	}
 
-	public void createImagePanel() {
+	private void createImagePanel() {
 		// TODO
 		// change image dynamically
 		imagePanel = new JPanel();
@@ -165,7 +165,7 @@ public class AutoDJGUI extends Observable {
 		imagePanel.add(coverLabel, constr);
 	}
 
-	public void createConfigPanel() {
+	private void createConfigPanel() {
 		configPanel = new JPanel();
 		configPanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();

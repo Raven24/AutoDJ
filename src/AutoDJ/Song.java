@@ -217,9 +217,9 @@ public class Song {
 	 * @return true, if the md5sums match and the path names don't differ,
 	 * false otherwise.
 	 */
-	public boolean equals(Song song2) {
-		if (this.getMD5sum().compareTo(song2.getMD5sum())==0) {
-			if (this.getFile().compareTo(song2.getFile())==0) return true;
+	public boolean equals(Song song) {
+		if (this.getMD5sum().compareTo(song.getMD5sum())==0) {
+			if (this.getFile().compareTo(song.getFile())==0) return true;
 		}
 		return false;
 	}
