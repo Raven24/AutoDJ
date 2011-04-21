@@ -1,3 +1,25 @@
+/**
+ * Song.java
+ * (C) 2011 Florian Staudacher, Christian Wurst
+ * 
+ * This file is part of AutoDJ.
+ *
+ * AutoDJ is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AutoDJ is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AutoDJ.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package AutoDJ;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,6 +32,10 @@ import org.jaudiotagger.audio.mp3.MP3File;
 import org.jaudiotagger.tag.id3.AbstractID3v2Tag;
 import org.jaudiotagger.tag.id3.ID3v24Frames;
 
+/**
+ * Song is a class which represents a single song.
+ * It stores all relevant data to handle a song inside AutoDJ.
+ */
 
 public class Song {
 	private int id;
@@ -21,10 +47,11 @@ public class Song {
 	private File filename;
 	private String md5sum;
 	
-	/*
-	 * 
-	 * constructor from file
-	 * 
+	/**
+	 * Creates a new Song object from a File. It extracts all
+	 * the relevant data from the file on the harddisk and
+	 * stores it inside the newly created instance.
+	 * @param file The file representing the MP3 file on disk.
 	 */
 	public Song(File file) {
 		filename = file;
@@ -54,10 +81,17 @@ public class Song {
 		}
 	}
 	
-	/*
-	 * 
-	 * constructor from database
-	 * 
+	/**
+	 * Creates a new Song object with the given data.
+	 * Used for creation of Song objects already stored in the database.
+	 * @param id The unique id this song has in the database.
+	 * @param artist The artist of this song.
+	 * @param title The title of this song.
+	 * @param trackno The track number of this song on the given album.
+	 * @param album The name of the album this song is on.
+	 * @param year The year this song was first released to public.
+	 * @param filename A File object storing the filename of the MP3 file.
+	 * @param md5sum The md5sum of this MP3 file.
 	 */
 	public Song(int id, String artist, String title, int trackno, String album, int year, File filename, String md5sum) {
 		this.id=id;
@@ -71,9 +105,7 @@ public class Song {
 	}
 	
 	/*
-	 * 
 	 * calculate a MD5sum of a given file
-	 * 
 	 */
 	private String calculateMD5(File file) throws NoSuchAlgorithmException, FileNotFoundException {
 		MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -99,82 +131,75 @@ public class Song {
 		}		
 	}
 
-	/*
-	 * 
-	 * return the id of this song
-	 * 
+	/**
+	 * Returns the unique id this song has in the database.
+	 * @return The unique id this song has in the database.
 	 */
 	public int getId() {
 		return this.id;
 	}
 	
-	/*
-	 * 
-	 * return the artist of this song
-	 * 
+	/**
+	 * Returns the artist of this song.
+	 * @return The artist of this song.
 	 */
 	public String getArtist() {
 		return this.artist;
 	}
 	
-	/*
-	 * 
-	 * return the title of this song
-	 * 
+	/**
+	 * Returns the title of this song.
+	 * @return The title of this song.
 	 */
 	public String getTitle() {
 		return this.title;
 	}
 	
-	/*
-	 * 
-	 * return the track number of this song
-	 * 
+	/**
+	 * Returns the track number of this song on the given album.
+	 * @return The track number of this song on the given album.
 	 */
 	public int getTrackno() {
 		return this.trackno;
 	}
 
-	/*
-	 * 
-	 * return the album of this song
-	 * 
+	/**
+	 * Returns the name of the album this song is on.
+	 * @return The name of the album this song is on.
 	 */
 	public String getAlbum() {
 		return this.album;
 	}
 	
-	/*
-	 * 
-	 * return the release year of this song
-	 * 
+	/**
+	 * Returns the year this song was first released to public.
+	 * @return The year this song was first released to public.
 	 */
 	public int getYear() {
 		return this.year;
 	}
 	
-	/*
-	 * 
-	 * return the file of this song
-	 * 
+	/**
+	 * Returns a File object storing the filename of the MP3 file.
+	 * @return A File object storing the filename of the MP3 file.
 	 */
 	public File getFile() {
 		return this.filename;
 	}
 	
-	/*
-	 * 
-	 * return the MD5sum of this song
-	 * 
+	/**
+	 * Returns the md5sum of this MP3 file.
+	 * @return The md5sum of this MP3 file.
 	 */
 	public String getMD5sum() {
 		return this.md5sum;
 	}
 	
-	/*
-	 * 
-	 * print all info about this song
-	 * 
+	/**
+	 * Returns a String representation of the data stored
+	 * in this object. Useful for debugging purposes.
+	 * @return A String representation of the data stored
+	 * in this object.
 	 */
 	public String toString() {
 		String retval="Info about Song";
@@ -185,10 +210,12 @@ public class Song {
 		return retval;
 	}
 	
-	/*
-	 * 
-	 * compare 2 songs
-	 * 
+	/**
+	 * Compares two Song instances. Returns true only if the md5sums
+	 * match (meaning the file content doesn't differ) AND the fully
+	 * qualified path name didn't change.
+	 * @return true, if the md5sums match and the path names don't differ,
+	 * false otherwise.
 	 */
 	public boolean equals(Song song2) {
 		if (this.getMD5sum().compareTo(song2.getMD5sum())==0) {

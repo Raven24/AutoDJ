@@ -1,3 +1,25 @@
+/**
+ * SongDatabase.java
+ * (C) 2011 Florian Staudacher, Christian Wurst
+ * 
+ * This file is part of AutoDJ.
+ *
+ * AutoDJ is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AutoDJ is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AutoDJ.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package AutoDJ;
+ 
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -6,15 +28,24 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
 
+/**
+ * SongDatabase is a class which represents a song database for AutoDJ.
+ * It does all the communication with the database.
+ */
+
 public class SongDatabase {
 
 	private Connection conn;
 	private final String url;
 	
-	/*
-	 * 
-	 * constructor
-	 * 
+	/**
+	 * Creates a new SongDatabase instance to work with and checks, if the
+	 * database exists, the a connection is accepted and the tables have
+	 * the correct format.
+	 * TODO: actually check if the tables have the correct format. Maybe
+	 * also do some sanity-checking on the table: Is there only one entry
+	 * for each song? Does each song exist in the database which is
+	 * referenced in the played-table?
 	 */
 	public SongDatabase() {
 		url = "jdbc:mysql://localhost/autodj?user=christian&password=password";
@@ -54,10 +85,8 @@ public class SongDatabase {
 		// good, we're ready to go
 	}
 	
-	/*
-	 * 
-	 *  create a connection to the mysql-server
-	 * 
+	/**
+	 *  Create a connection to the mysql-server
 	 */
 	private void createConnection() {
 		try {
@@ -72,10 +101,8 @@ public class SongDatabase {
 		}
 	}
 	
-	/*
-	 * 
-	 * close the connection to the mysql-server
-	 * 
+	/**
+	 * Close the connection to the mysql-server
 	 */
 	private void closeConnection () {
 		try {
@@ -87,10 +114,9 @@ public class SongDatabase {
 		}
 	}
 
-	/*
-	 * 
-	 * add a song to the DB
-	 * 
+	/**
+	 * Adds a song to the database
+	 * @param song The song to be added to the database.
 	 */
 	public void addSong (Song song) {
 		try {
@@ -115,10 +141,14 @@ public class SongDatabase {
 		}
 	}
 	
-	/*
-	 * 
-	 * get songlist from the DB
-	 * 
+	/**
+	 * Searches the database for songs matching a given search string.
+	 * The string is matched against the songs artist, title and album.
+	 * @param search The string which is searched for.
+	 * @return A Vector of Song objects which represent all songs that
+	 * match the search string. If the search string is empty, all
+	 * songs in the database are returned.
+	 * @see Song
 	 */
 	public Vector<Song> getSongs (String search) {
 		Vector<Song> songList = new Vector<Song>();
@@ -152,7 +182,4 @@ public class SongDatabase {
 		}
 		return songList;
 	}	
-	
-	
-	
 }
