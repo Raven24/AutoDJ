@@ -13,7 +13,9 @@
 	information it behaves like a DJ, hence the name.
 	
 	AutoDJ is written in Java and depends on a MySQL database it can reach
-	somewhere over a network.
+	somewhere over a network. It uses the jaudiotagger library for
+	extracting ID3-tags from MP3 files. jaudiotagger is released under the
+	LGPL and can be downloaded from http://www.jthink.net/jaudiotagger/.
 	
 	AutoDJ is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
