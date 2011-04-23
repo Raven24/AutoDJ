@@ -94,23 +94,32 @@ public class PlayerThread extends Thread {
 	mplayerIn.print(command);
 	mplayerIn.print("\n");
 	mplayerIn.flush();
-	
-	getPlayingTime();
-	
-	try {
-	    Thread.sleep(5000);
-	} catch (InterruptedException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
-	
+		
     }
     
     /**
      * pause playback
      */
-    public void pause() {
+    public void pausePlayback() {
 	mplayerIn.print("pause");
+	mplayerIn.print("\n");
+	mplayerIn.flush();
+    }
+    
+    /**
+     * stop playback
+     */
+    public void stopPlayback() {
+	mplayerIn.print("stop");
+	mplayerIn.print("\n");
+	mplayerIn.flush();
+    }
+    
+    /**
+     * toggle mute 
+     */
+    public void toggleMute() {
+	mplayerIn.print("mute");
 	mplayerIn.print("\n");
 	mplayerIn.flush();
     }
