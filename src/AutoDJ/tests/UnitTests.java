@@ -27,6 +27,8 @@ import AutoDJ.audioPlayer.*;
 
 public class UnitTests {
 
+    	static PlayerThread t;
+    	
 	/**
 	 * @param args
 	 */
@@ -84,16 +86,23 @@ public class UnitTests {
 			    
 			    Song test = new Song(new File(param));
 			    
-			    out("Now playing: " + test.toString());
+			    out("Now playing: " + test.getArtist() + " - " + test.getTitle() + " for 5 Seconds");
 			    
-			    PlayerThread t = new PlayerThread();
+			    t = new PlayerThread();
 			    t.start();
 			    t.loadSong(test);
-			    
-			    t.kill();
-			    
-			    out("\nPlayback stopped.");
-			    
+			
+			    ( new Thread() {
+				public void run() {
+				    try {
+					Thread.sleep(5000);
+				    } catch(Exception e) {}
+				    
+				    t.kill();
+				    out("\nPlayback stopped.");
+				}
+			    }).start();
+			   
 			} else 
 			    out("unknown command");
 			
