@@ -1,2 +1,2 @@
 #!/bin/bash
-javadoc -version -author -sourcepath ./src/AutoDJ -d ./doc/javadoc AutoDJ ./src/AutoDJ/*.java
+javadoc -version -author -private -sourcepath ./src/AutoDJ -d ./doc/javadoc AutoDJ ./src/AutoDJ/*.java
