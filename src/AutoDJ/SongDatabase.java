@@ -181,5 +181,29 @@ public class SongDatabase {
 	        System.out.println("VendorError: " + ex.getErrorCode());
 		}
 		return songList;
+	}
+
+	public void changeSong(Song oldSong, Song newSong) {
+		try {
+			createConnection();
+			Statement statement = conn.createStatement();
+			String query="UPDATE songs SET ";
+			query+="artist = \"" + newSong.getArtist() + "\", ";
+			query+="title = \"" + newSong.getTitle() + "\", ";
+			query+="trackno = " + newSong.getTrackno() + ", ";
+			query+="album = \"" + newSong.getAlbum() + "\", ";
+			query+="year = " + newSong.getYear() + ", ";
+			query+="filename = \"" + newSong.getFile().getAbsolutePath() + "\", ";
+			query+="md5sum = '" + newSong.getMD5sum() + "' ";
+			query+="WHERE id = " + oldSong.getId();
+			System.out.println(query);
+			statement.executeUpdate(query);
+			closeConnection();
+		} catch (SQLException ex) {
+	        System.out.println("SQLException: " + ex.getMessage());
+	        System.out.println("SQLState: " + ex.getSQLState());
+	        System.out.println("VendorError: " + ex.getErrorCode());
+	        System.out.println("occured for song " + newSong.getArtist() + " - " + newSong.getTitle());
+		}
 	}	
 }

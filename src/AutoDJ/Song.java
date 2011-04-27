@@ -218,9 +218,17 @@ public class Song {
 	 * false otherwise.
 	 */
 	public boolean equals(Song song) {
-		if (this.getMD5sum().compareTo(song.getMD5sum())==0) {
-			if (this.getFile().compareTo(song.getFile())==0) return true;
-		}
-		return false;
+		return compareMD5sum(song) && compareFile(song);
 	}
+
+	public boolean compareMD5sum(Song song) {
+		if (this.getMD5sum().compareTo(song.getMD5sum())==0) return true;
+		else return false;
+	}
+	
+	public boolean compareFile(Song song) {
+		if (this.getFile().compareTo(song.getFile())==0) return true;
+		else return false;
+	}
+	
 }

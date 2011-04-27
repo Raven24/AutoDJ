@@ -25,8 +25,8 @@ package AutoDJ;
  * which the AutoDJGUI "sends" to AutoDJCore. It consists of a single
  * integer field which represents the message an instance of this class
  * represents.
- * @see AutoDJGUI
- * @see AutoDJCore
+ * @see AutoDJView
+ * @see AutoDJController
  */
 
 public class ObserverMessage {
@@ -42,7 +42,14 @@ public class ObserverMessage {
 	 * The integer value representing "rescan the harddisk for
 	 * changed MP3 files and update the database accordingly"
 	 */
-	public static final int RESCAN_LIBRARY = 100;
+	public static final int RESCAN_LIBRARY = 3;
+	
+	/**
+	 * The integer value representing "player log was changed,
+	 * display new log messages"
+	 */
+	public static final int NEW_LOG_MESSAGE = 101;
+	
 	
 	private int message;
 

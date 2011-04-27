@@ -28,6 +28,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -44,14 +45,14 @@ import javax.swing.JToggleButton;
 import javax.swing.border.EtchedBorder;
 
 
-public class AutoDJGUI extends Observable {
+public class AutoDJView extends Observable implements Observer {
 	private JFrame gui;
 	private JPanel mainPanel;
 	private JPanel imagePanel;
 	private JPanel configPanel;
 	private JPanel playerPanel;
 
-	public AutoDJGUI (String appName) {
+	public AutoDJView (String appName) {
 		gui = new JFrame();
 		// close program on GUI exit
 		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -196,9 +197,7 @@ public class AutoDJGUI extends Observable {
 		c.gridwidth = 3;
 		c.fill=GridBagConstraints.HORIZONTAL;
 		logPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-		logPanel.append("AutoDJ started!\n");
 		configPanel.add(logPanel, c);
-		logPanel.append("AutoDJ started!\n");
 	}
 
 
@@ -212,6 +211,22 @@ public class AutoDJGUI extends Observable {
 	
 	public void setVisible(boolean b) {
 		gui.setVisible(b);
+	}
+
+	@Override
+	public void update(Observable arg0, Object m) {
+		// TODO Auto-generated method stub
+		ObserverMessage message = (ObserverMessage) m;
+		if (m instanceof ObserverMessage) {
+			if (message.getMessage()==ObserverMessage.NEW_LOG_MESSAGE) {
+				String logmessage = ((AutoDJModel) arg0).getLogtext();
+				if (!logmessage.endsWith("\n")) logmessage+="\n";
+				// FIXME!
+				((JTextArea) configPanel.getComponent(3)).append(logmessage);
+			}
+				
+		}
+			
 	}
 
 }

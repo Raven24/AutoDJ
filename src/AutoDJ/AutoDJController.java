@@ -20,25 +20,24 @@
 
 package AutoDJ;
 
+import java.io.Console;
 import java.io.File;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
 
 
-public class AutoDJCore implements Observer {
+public class AutoDJController implements Observer {
 	
 	private SongDatabase myDatabase;
 	
-	public AutoDJCore () {
+	public AutoDJController () {
 		// create a new SongDB
 		myDatabase = new SongDatabase();
 	}
 	
-	/*
-	 * 
+	/**
 	 * rescan music database
-	 * 
 	 */
 	private void rescanDatabase () {
 		// get all songs from DB
@@ -46,7 +45,7 @@ public class AutoDJCore implements Observer {
 		databaseList = myDatabase.getSongs("");
 		
 		// get all songs from HD
-		final String dirname="/home/christian/Musik/Fertig";
+		final String dirname="/home/christian/Musik/TEST";
 		File mp3dir = new File(dirname);
 		Vector<File> mp3Files = new Vector<File>();
 		mp3Files = getAllmp3Files(mp3dir, mp3Files);
@@ -58,6 +57,7 @@ public class AutoDJCore implements Observer {
 		}
 		
 		// TODO
+		System.out.println("All files on disk and in DB:");
 		System.out.println("database size: "+databaseList.size());
 		System.out.println("file list size: "+songFiles.size());
 		
@@ -72,6 +72,17 @@ public class AutoDJCore implements Observer {
 					//System.out.println("current i and j: " + i + " " + j);
 					//System.out.println("sizeof songFiles: " + songFiles.size());
 					break;
+				} else if ( databaseList.elementAt(i).compareMD5sum (songFiles.elementAt(j)) ||
+							databaseList.elementAt(i).compareFile   (songFiles.elementAt(j))) {
+					System.out.println("Found possible match:");
+					System.out.println("DB:   "+databaseList.elementAt(i).toString());
+					System.out.println("File: "+songFiles.elementAt(j).toString());
+					System.out.println("passt");
+					// update DB
+					myDatabase.changeSong(databaseList.elementAt(i), songFiles.elementAt(j));
+					databaseList.set(i,null);
+					songFiles.remove(j);
+					break;
 				}
 			}
 		}
@@ -81,10 +92,8 @@ public class AutoDJCore implements Observer {
 			continue;
 		}
 		
-		// now there are only changed files in both Vectors
 		// TODO
-		
-		// TODO
+		System.out.println("After removing files with same MD5sum:");
 		System.out.println("database size: "+databaseList.size());
 		System.out.println("file list size: "+songFiles.size());
 		
@@ -92,21 +101,11 @@ public class AutoDJCore implements Observer {
 		for (int i=0; i<databaseList.size(); i++) {
 			System.out.println(databaseList.elementAt(i).toString() + "\n");
 		}*/
+		
+		for (int i=0; i<songFiles.size(); i++) {
+			myDatabase.addSong(songFiles.elementAt(i));
+		}
 	}
-	
-/*
-	// create a new Vector to store our filenames in
-
-
-	// and fill it
-	for (int i=0; i<songFiles.size(); i++) {
-		myDatabase.addSong(songFiles.elementAt(i));
-	}
-	
-	// print out information about each song:
-	//for (int i=0; i<songFiles.size(); i++) {
-	//	System.out.println(songFiles.elementAt(i).toString() + "\n");
-	//}*/
 
 	/*
 	 *  recursively get all mp3s in subdirs
@@ -135,7 +134,6 @@ public class AutoDJCore implements Observer {
 			} else if (message.getMessage()==ObserverMessage.PAUSE) {
 				//someone told us to stop playing
 			} else if (message.getMessage()==ObserverMessage.RESCAN_LIBRARY) {
-				System.out.println("Button pressed");
 				rescanDatabase ();
 			}
 		} else {

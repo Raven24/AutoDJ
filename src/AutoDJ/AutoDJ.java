@@ -50,16 +50,23 @@ public class AutoDJ {
 			System.out.println(e.getMessage());
 		}
 		
-		// create a new GUI
-		AutoDJGUI gui = new AutoDJGUI("AutoDJ v0.1");
-		gui.setLocation(400, 250);
-		gui.setSize(600, 400);
-		gui.setVisible(true);
+		// create a new model
+		AutoDJModel model = new AutoDJModel();
 		
-		// create a new core
-		AutoDJCore core = new AutoDJCore();
+		// create a new controller
+		AutoDJController controller = new AutoDJController();
 		
-		// core observes gui
-		gui.addObserver(core);
+		// create a new view (GUI)
+		AutoDJView view = new AutoDJView("AutoDJ v0.1");
+		view.setLocation(400, 250);
+		view.setSize(600, 400);
+		view.setVisible(true);
+
+		// controller observes view
+		view.addObserver(controller);
+		
+		// view observes model
+		model.addObserver(view);
+		model.setLogtext("AutoDJ started!");
 	}
 }
