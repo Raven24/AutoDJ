@@ -34,17 +34,41 @@ import org.jaudiotagger.tag.id3.ID3v24Frames;
 
 /**
  * Song is a class which represents a single song.
- * It stores all relevant data to handle a song inside AutoDJ.
+ * It stores all relevant data to handle a song in AutoDJ.
  */
 
 public class Song {
+	/**
+	 * The id of this song in the database.
+	 */
 	private int id;
+	/**
+	 * The artist of this song.
+	 */
 	private String artist;
+	/**
+	 * The title of this song.
+	 */
 	private String title;
+	/**
+	 * The track number on the album this song was released on.
+	 */
 	private int trackno;
+	/**
+	 * The name of the album this song was released on.
+	 */
 	private String album;
+	/**
+	 * The year song was released in.
+	 */
 	private int year;
+	/**
+	 *The MP3 file this song is stored in as a File object.
+	 */
 	private File filename;
+	/**
+	 * The md5sum of the MP3 file this song is stored in.
+	 */
 	private String md5sum;
 	
 	/**
@@ -104,8 +128,9 @@ public class Song {
 		this.md5sum=md5sum;
 	}
 	
-	/*
+	/**
 	 * calculate a MD5sum of a given file
+	 * @param file the file to calculate the md5sum from.
 	 */
 	private String calculateMD5(File file) throws NoSuchAlgorithmException, FileNotFoundException {
 		MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -213,7 +238,7 @@ public class Song {
 	/**
 	 * Compares two Song instances. Returns true only if the md5sums
 	 * match (meaning the file content doesn't differ) AND the fully
-	 * qualified path name didn't change.
+	 * qualified path name doesn't differ.
 	 * @return true, if the md5sums match and the path names don't differ,
 	 * false otherwise.
 	 */
@@ -221,11 +246,21 @@ public class Song {
 		return compareMD5sum(song) && compareFile(song);
 	}
 
+	/**
+	 * Compares two Song instances. Returns true only if the md5sums
+	 * match (meaning the file content doesn't differ).
+	 * @return true, if the md5sums match, false otherwise.
+	 */
 	public boolean compareMD5sum(Song song) {
 		if (this.getMD5sum().compareTo(song.getMD5sum())==0) return true;
 		else return false;
 	}
 	
+	/**
+	 * Compares two Song instances. Returns true only if the fully
+	 * qualified path name doesn't differ.
+	 * @return true, if the path names don't differ, false otherwise.
+	 */
 	public boolean compareFile(Song song) {
 		if (this.getFile().compareTo(song.getFile())==0) return true;
 		else return false;

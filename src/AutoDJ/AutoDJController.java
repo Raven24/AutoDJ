@@ -25,18 +25,43 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
 
+/**
+ * AutoDJController is a class which represents AutoDJ's Controller
+ * part as specified in MVC. It reacts on user input coming from
+ * AutoDJView, does all necessary calculations and updates
+ * AutoDJModel accordingly.<br \>
+ * <a href="http://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller">
+ * Wikipedia: model-view-controller</a>
+ * @see AutoDJModel
+ * @see AutoDJView
+ */
 
 public class AutoDJController implements Observer {
+	/**
+	 * The AutoDJModel-Object this class modifies.
+	 * @see AutoDJModel
+	 */
 	private AutoDJModel model;
+	/**
+	 * The SongDatabase this class works with.
+	 * @see SongDatabase
+	 */
 	private SongDatabase myDatabase;
 	
+	/**
+	 * Creates a new AutoDJController object which interacts with
+	 * the specified AutoDJModel.
+	 * @param m The AutoDJModel object this AutoDJController will
+	 * interact with.
+	 */
 	public AutoDJController (AutoDJModel m) {
 		myDatabase = new SongDatabase();
 		model = m;
 	}
 	
 	/**
-	 * rescan music database
+	 * Rescans the harddisk for all MP3 files and updates the
+	 * song database, if necessary.
 	 */
 	private void rescanDatabase () {
 		// get all songs from DB
@@ -44,7 +69,7 @@ public class AutoDJController implements Observer {
 		databaseList = myDatabase.getSongs("");
 		
 		// get all songs from HD
-		final String dirname="/home/christian/Musik/TEST";
+		final String dirname="/home/christian/Musik/Fertig";
 		File mp3dir = new File(dirname);
 		Vector<File> mp3Files = new Vector<File>();
 		mp3Files = getAllmp3Files(mp3dir, mp3Files);
@@ -92,8 +117,13 @@ public class AutoDJController implements Observer {
 		model.setLogtext("Added "+songFiles.size()+" song(s) to database.");
 	}
 
-	/*
-	 *  recursively get all mp3s in subdirs
+	/**
+	 * Recursively gets all MP3 files in a given directory.
+	 * @param file A File object representing the directory we search in.
+	 * @param mp3file A Vector of File objects representing all MP3 files
+	 * we found so far.
+	 * @return A Vector of File objects representing all MP3 files
+	 * we found.
 	 */
 	private static Vector<File> getAllmp3Files(File file, Vector<File> mp3file) {
 		if (file.isDirectory()) {
@@ -109,6 +139,14 @@ public class AutoDJController implements Observer {
 		return mp3file;
 	}
 
+	/**
+	 * Updates this object if changes in an other object occurs. At the moment
+	 * this class is notified only if something in AutoDJView has changed,
+	 * e.g. a button was pressed etc.
+	 * @param arg0 The object which notified this class of some change.
+	 * @param m The ObserverMessage the object which changed sent.
+	 * @see ObserverMessage
+	 */
 	@Override
 	public void update(Observable arg0, Object m) {
 		// TODO Auto-generated method stub
@@ -125,5 +163,4 @@ public class AutoDJController implements Observer {
 			System.out.println ("Unknown Observer-Message caught!");
 		}
 	}
-
 }

@@ -25,8 +25,9 @@ package AutoDJ;
  * which the AutoDJGUI "sends" to AutoDJCore. It consists of a single
  * integer field which represents the message an instance of this class
  * represents.
- * @see AutoDJView
  * @see AutoDJController
+ * @see AutoDJModel
+ * @see AutoDJView
  */
 
 public class ObserverMessage {
@@ -50,7 +51,9 @@ public class ObserverMessage {
 	 */
 	public static final int NEW_LOG_MESSAGE = 101;
 	
-	
+	/**
+	 * The integer value which stores the message.
+	 */
 	private int message;
 
 	/**

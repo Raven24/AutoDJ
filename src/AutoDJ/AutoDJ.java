@@ -38,7 +38,11 @@ import javax.swing.UIManager;
  */
 
 public class AutoDJ {
-
+	/**
+	 * The program name and version number.
+	 */
+	public static final String VERSION = "AutoDJ v0.1";
+	
 	/**
 	 * @param args command line parameters (currently not in use)
 	 */
@@ -57,7 +61,7 @@ public class AutoDJ {
 		AutoDJController controller = new AutoDJController(model);
 		
 		// create a new view (GUI)
-		AutoDJView view = new AutoDJView("AutoDJ v0.1");
+		AutoDJView view = new AutoDJView(VERSION);
 		view.setLocation(400, 250);
 		view.setSize(600, 400);
 		view.setVisible(true);
@@ -67,6 +71,6 @@ public class AutoDJ {
 		
 		// view observes model
 		model.addObserver(view);
-		model.setLogtext("AutoDJ started!");
+		model.setLogtext(VERSION + " started!");
 	}
 }

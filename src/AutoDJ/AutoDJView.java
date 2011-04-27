@@ -22,7 +22,6 @@ package AutoDJ;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -46,15 +45,49 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.border.EtchedBorder;
 
+/**
+ * AutoDJView is a class which represents AutoDJ's View
+ * part as specified in MVC. It notifies AutoDJController
+ * if any user input happens and reacts if AutoDJModel
+ * is changed and displays the changes.<br \>
+ * <a href="http://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller">
+ * Wikipedia: model-view-controller</a>
+ * @see AutoDJController
+ * @see AutoDJModel
+ */
 
 public class AutoDJView extends Observable implements Observer {
+	/**
+	 * The AutoDJ main window.
+	 */
 	private JFrame gui;
+	/**
+	 * The first panel containing the playlist, song library and a search field.
+	 */
 	private JPanel mainPanel;
+	/**
+	 * The second panel which displays the cover art, if available.
+	 */
 	private JPanel imagePanel;
+	/**
+	 * The third panel for all the configuration.
+	 */
 	private JPanel configPanel;
+	/**
+	 * The player panel containing the play/pause-button, the next-song-button
+	 * and a progress bar.
+	 */
 	private JPanel playerPanel;
+	/**
+	 * The text area where all log messages are displayed.
+	 */
 	private JTextArea logPanel;
 
+	/**
+	 * Creates a new AutoDJView object and displays it.
+	 * @param appName A String which will be displayed
+	 * as the window title.
+	 */
 	public AutoDJView (String appName) {
 		gui = new JFrame();
 		// close program on GUI exit
@@ -62,11 +95,9 @@ public class AutoDJView extends Observable implements Observer {
 		// set title of window to application name
 		gui.setTitle(appName);
 		
-		// build main panel for playlist and library
+		// build all panels
 		createMainPanel();
-		// build panel for display of album cover
 		createImagePanel();
-		// build panel for configuration
 		createConfigPanel();
 		// Create a tabbed pane and add panels
 		JTabbedPane mainPane = new JTabbedPane();
@@ -80,6 +111,10 @@ public class AutoDJView extends Observable implements Observer {
 		gui.add(playerPanel, BorderLayout.PAGE_END);
     }
 	
+    /**
+	 * Creates the player panel containing the play/pause-button, the next-song-button
+	 * and a progress bar.
+	 */
 	private void createPlayerPanel() {
 		playerPanel = new JPanel();
 		playerPanel.setLayout(new GridBagLayout());
@@ -113,8 +148,11 @@ public class AutoDJView extends Observable implements Observer {
 		playerPanel.add(nextSongButton, c);
 	}
 	
+	/**
+	 * Creates the first panel containing the playlist, song library and a search field.
+	 */
 	private void createMainPanel() {
-		// TODO
+		// FIXME!
 		// create a string array to display in the jlists
 		// remove this when possible
 		String[] data = {"one", "two", "three", "four", "one", "two", "three", "four"};
@@ -159,9 +197,12 @@ public class AutoDJView extends Observable implements Observer {
 		mainPanel.add(libraryScrollpane, rightConstraints);
 	}
 
+	/**
+	 * Creates the second panel which displays the cover art, if available.
+	 */
 	private void createImagePanel() {
-		// TODO
-		// change image dynamically
+		// FIXME!
+		// change image size dynamically, i.e. make it smaller when window is small
 		imagePanel = new JPanel();
 		imagePanel.setLayout(new GridBagLayout());
 		GridBagConstraints constr = new GridBagConstraints();
@@ -173,6 +214,15 @@ public class AutoDJView extends Observable implements Observer {
 		imagePanel.add(coverLabel, constr);
 	}
 
+	/**
+	 * Creates the third panel for all the configuration.
+	 */
+	// FIXME!
+	// Does currently only do the rescan library thing and
+	// the log messages correctly.
+	// There are 2 buttons which do nothing at all and
+	// should be removed if something meaningful can be
+	// added.
 	private void createConfigPanel() {
 		configPanel = new JPanel();
 		configPanel.setLayout(new GridBagLayout());
@@ -212,19 +262,44 @@ public class AutoDJView extends Observable implements Observer {
 		configPanel.add(scrollpane, c);
 	}
 
-
+	/**
+	 * Moves the main window to a new location. The top-left corner of the
+	 * new location is specified by the x and y parameters in the coordinate
+	 * space of this component's parent (i.e. the screen).
+	 * @param x the x-coordinate of the new location's top-left corner.
+	 * @param y the y-coordinate of the new location's top-left corner.
+	 */
 	public void setLocation(int x, int y) {
 		gui.setLocation(x,y);
 	}
 	
+	/**
+	 * Resizes the main window so that it has width <code>x</code>
+	 * and height <code>y</code>.
+	 * @param x the new width of this component in pixels
+	 * @param y the new height of this component in pixels
+	 */
 	public void setSize(int x, int y) {
 		gui.setSize(x,y);
 	}
 	
+	/**
+	 * Shows or hides the main window depending on the value of parameter b.
+	 * @param b if <code>true</code>, shows this component; otherwise,
+	 * hides this component
+	 */
 	public void setVisible(boolean b) {
 		gui.setVisible(b);
 	}
 
+	/**
+	 * Updates this object if changes in an other object occurs. At the moment
+	 * this class is notified only if something in AutoDJModel has changed,
+	 * e.g. a new log message was created, the playlist changed, etc.
+	 * @param arg0 The object which notified this class of some change.
+	 * @param m The ObserverMessage the object which changed sent.
+	 * @see ObserverMessage
+	 */
 	@Override
 	public void update(Observable arg0, Object m) {
 		ObserverMessage message = (ObserverMessage) m;

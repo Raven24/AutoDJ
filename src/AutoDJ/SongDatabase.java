@@ -34,8 +34,13 @@ import java.util.Vector;
  */
 
 public class SongDatabase {
-
+	/**
+	 * the connection to the database
+	 */
 	private Connection conn;
+	/**
+	 * the URL to the database
+	 */
 	private final String url;
 	
 	/**
@@ -48,6 +53,7 @@ public class SongDatabase {
 	 * referenced in the played-table?
 	 */
 	public SongDatabase() {
+		// FIXME!
 		url = "jdbc:mysql://localhost/autodj?user=christian&password=password";
 		createConnection();
 		// do we have the tables we need?
@@ -57,7 +63,6 @@ public class SongDatabase {
 		    stmt = conn.createStatement();
 		    if (stmt.execute("DESCRIBE songs")) {
 		    	rs = stmt.getResultSet();
-		    	//System.out.println(rs.toString());
 		    }
 		} catch (SQLException ex) {
 	        System.out.println("SQLException: " + ex.getMessage());
@@ -82,7 +87,6 @@ public class SongDatabase {
 		    }
 		}
 		closeConnection();
-		// good, we're ready to go
 	}
 	
 	/**
@@ -159,8 +163,6 @@ public class SongDatabase {
 			query+="artist LIKE \"%" + search +"%\" OR ";
 			query+="title LIKE \"%" + search +"%\" OR ";
 			query+="album LIKE \"%" + search +"%\"";
-			// TODO
-			//System.out.println(query);
 			ResultSet rs = statement.executeQuery(query);
 			while(rs.next()) {
 				int id = rs.getInt("id");
@@ -183,6 +185,15 @@ public class SongDatabase {
 		return songList;
 	}
 
+	/**
+	 * Changes an entry for a song in the database.
+	 * @param oldSong A Song object containing the outdated information
+	 * about the song. Only the database id of this object is
+	 * actually used.
+	 * @param newSong A Song object containing the updated information
+	 * about the song.
+	 * @see Song
+	 */
 	public void changeSong(Song oldSong, Song newSong) {
 		try {
 			createConnection();
