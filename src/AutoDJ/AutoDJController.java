@@ -20,7 +20,6 @@
 
 package AutoDJ;
 
-import java.io.Console;
 import java.io.File;
 import java.util.Observable;
 import java.util.Observer;
@@ -28,12 +27,12 @@ import java.util.Vector;
 
 
 public class AutoDJController implements Observer {
-	
+	private AutoDJModel model;
 	private SongDatabase myDatabase;
 	
-	public AutoDJController () {
-		// create a new SongDB
+	public AutoDJController (AutoDJModel m) {
 		myDatabase = new SongDatabase();
+		model = m;
 	}
 	
 	/**
@@ -56,10 +55,8 @@ public class AutoDJController implements Observer {
 			songFiles.add(new Song(mp3Files.elementAt(i)));
 		}
 		
-		// TODO
-		System.out.println("All files on disk and in DB:");
-		System.out.println("database size: "+databaseList.size());
-		System.out.println("file list size: "+songFiles.size());
+		model.setLogtext("Database size: "+databaseList.size()+" Song(s)");
+		model.setLogtext("Files on HD: "+songFiles.size()+" Song(s)");
 		
 		// find and remove all files which have a DB entry
 		// and are unchanged from songFiles
@@ -69,15 +66,12 @@ public class AutoDJController implements Observer {
 				if (databaseList.elementAt(i).equals(songFiles.elementAt(j))) {
 					databaseList.set(i,null);
 					songFiles.remove(j);
-					//System.out.println("current i and j: " + i + " " + j);
-					//System.out.println("sizeof songFiles: " + songFiles.size());
 					break;
 				} else if ( databaseList.elementAt(i).compareMD5sum (songFiles.elementAt(j)) ||
 							databaseList.elementAt(i).compareFile   (songFiles.elementAt(j))) {
-					System.out.println("Found possible match:");
-					System.out.println("DB:   "+databaseList.elementAt(i).toString());
-					System.out.println("File: "+songFiles.elementAt(j).toString());
-					System.out.println("passt");
+					model.setLogtext("Found possible match:");
+					model.setLogtext("DB:   "+databaseList.elementAt(i).toString());
+					model.setLogtext("File: "+songFiles.elementAt(j).toString());
 					// update DB
 					myDatabase.changeSong(databaseList.elementAt(i), songFiles.elementAt(j));
 					databaseList.set(i,null);
@@ -91,20 +85,11 @@ public class AutoDJController implements Observer {
 		while(databaseList.remove(null)) {
 			continue;
 		}
-		
-		// TODO
-		System.out.println("After removing files with same MD5sum:");
-		System.out.println("database size: "+databaseList.size());
-		System.out.println("file list size: "+songFiles.size());
-		
-		/*
-		for (int i=0; i<databaseList.size(); i++) {
-			System.out.println(databaseList.elementAt(i).toString() + "\n");
-		}*/
-		
+
 		for (int i=0; i<songFiles.size(); i++) {
 			myDatabase.addSong(songFiles.elementAt(i));
 		}
+		model.setLogtext("Added "+songFiles.size()+" song(s) to database.");
 	}
 
 	/*

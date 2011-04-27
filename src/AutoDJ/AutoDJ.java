@@ -54,7 +54,7 @@ public class AutoDJ {
 		AutoDJModel model = new AutoDJModel();
 		
 		// create a new controller
-		AutoDJController controller = new AutoDJController();
+		AutoDJController controller = new AutoDJController(model);
 		
 		// create a new view (GUI)
 		AutoDJView view = new AutoDJView("AutoDJ v0.1");

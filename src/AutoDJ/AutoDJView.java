@@ -22,6 +22,7 @@ package AutoDJ;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -38,6 +39,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -51,6 +53,7 @@ public class AutoDJView extends Observable implements Observer {
 	private JPanel imagePanel;
 	private JPanel configPanel;
 	private JPanel playerPanel;
+	private JTextArea logPanel;
 
 	public AutoDJView (String appName) {
 		gui = new JFrame();
@@ -126,13 +129,15 @@ public class AutoDJView extends Observable implements Observer {
 		leftConstraints.insets=new Insets(5,5,5,5);
 		mainPanel.add(playListLabel, leftConstraints);
 		JList playlistList = new JList(data);
+		JScrollPane playlistScrollpane = new JScrollPane (playlistList);
+		playlistScrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		leftConstraints.fill=GridBagConstraints.BOTH;
 		leftConstraints.gridy = 1;
 		leftConstraints.gridheight = 2;
 		leftConstraints.weightx = 0.5;
 		leftConstraints.weighty = 1.0;
 		playlistList.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-		mainPanel.add(playlistList, leftConstraints);
+		mainPanel.add(playlistScrollpane, leftConstraints);
 		
 		JLabel libraryLabel = new JLabel("Song Library");
 		rightConstraints.gridx = 2;
@@ -145,11 +150,13 @@ public class AutoDJView extends Observable implements Observer {
 		rightConstraints.gridy = 1;
 		mainPanel.add(librarySearchField, rightConstraints);
 		JList libraryList = new JList(data);
+		JScrollPane libraryScrollpane = new JScrollPane (libraryList);
+		libraryScrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		rightConstraints.fill=GridBagConstraints.BOTH;
 		rightConstraints.gridy = 2;
 		rightConstraints.weighty = 1.0;
 		libraryList.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-		mainPanel.add(libraryList, rightConstraints);
+		mainPanel.add(libraryScrollpane, rightConstraints);
 	}
 
 	private void createImagePanel() {
@@ -190,14 +197,19 @@ public class AutoDJView extends Observable implements Observer {
 		c.gridx = 2;
 		configPanel.add(new JButton("Testbutton 2"), c);
 		
-		JTextArea logPanel = new JTextArea(5, 1);
+		logPanel = new JTextArea();
+		logPanel.setLineWrap(true);
+		logPanel.setWrapStyleWord(true);
+		JScrollPane scrollpane = new JScrollPane (logPanel);
+		scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		c.gridx = 0;
 		c.gridy = 2;
 		c.weightx = 1.0;
+		c.weighty = 1.0;
 		c.gridwidth = 3;
-		c.fill=GridBagConstraints.HORIZONTAL;
-		logPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-		configPanel.add(logPanel, c);
+		c.fill=GridBagConstraints.BOTH;
+		scrollpane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+		configPanel.add(scrollpane, c);
 	}
 
 
@@ -215,18 +227,14 @@ public class AutoDJView extends Observable implements Observer {
 
 	@Override
 	public void update(Observable arg0, Object m) {
-		// TODO Auto-generated method stub
 		ObserverMessage message = (ObserverMessage) m;
 		if (m instanceof ObserverMessage) {
 			if (message.getMessage()==ObserverMessage.NEW_LOG_MESSAGE) {
 				String logmessage = ((AutoDJModel) arg0).getLogtext();
 				if (!logmessage.endsWith("\n")) logmessage+="\n";
-				// FIXME!
-				((JTextArea) configPanel.getComponent(3)).append(logmessage);
+				logPanel.append(logmessage);
+				logPanel.setCaretPosition(logPanel.getDocument().getLength());
 			}
-				
 		}
-			
 	}
-
 }
