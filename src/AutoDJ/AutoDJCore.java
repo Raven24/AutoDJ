@@ -109,9 +109,7 @@ public class AutoDJCore implements Observer {
 	//}*/
 
 	/*
-	 * 
 	 *  recursively get all mp3s in subdirs
-	 * 
 	 */
 	private static Vector<File> getAllmp3Files(File file, Vector<File> mp3file) {
 		if (file.isDirectory()) {
@@ -126,7 +124,6 @@ public class AutoDJCore implements Observer {
 		}
 		return mp3file;
 	}
-	// end visitAllDirsAndFiles()
 
 	@Override
 	public void update(Observable arg0, Object m) {
