@@ -25,6 +25,8 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
 
+import javax.activation.MimetypesFileTypeMap;
+
 /**
  * AutoDJController is a class which represents AutoDJ's Controller
  * part as specified in MVC. It reacts on user input coming from
@@ -69,7 +71,9 @@ public class AutoDJController implements Observer {
 		databaseList = myDatabase.getSongs("");
 		
 		// get all songs from HD
-		final String dirname="/home/christian/Musik/Fertig";
+		// FIXME!
+		// get the directory from a config file
+		final String dirname="/home/christian/Musik/TEST";
 		File mp3dir = new File(dirname);
 		Vector<File> mp3Files = new Vector<File>();
 		mp3Files = getAllmp3Files(mp3dir, mp3Files);
@@ -132,9 +136,13 @@ public class AutoDJController implements Observer {
 				getAllmp3Files(new File(file, children[i]), mp3file);
 			}
 		} else {
-			// FIXME!
-			// it's a file, not a dir, might want to check if it is a mp3-file
-			mp3file.add(file);
+			// it's a file, not a dir, but it is a mp3-file?
+			// this checks the mime type via the file extension
+			// other, more sophisticated solutions exist, but they are reported as slow
+			MimetypesFileTypeMap map = new MimetypesFileTypeMap();
+			// unfortunately this method doesn't know about audio/mpeg
+			map.addMimeTypes("audio/mpeg mp3 MP3 mP3 Mp3");
+			if (map.getContentType(file).equals("audio/mpeg")) mp3file.add(file);
 		}
 		return mp3file;
 	}
@@ -149,7 +157,6 @@ public class AutoDJController implements Observer {
 	 */
 	@Override
 	public void update(Observable arg0, Object m) {
-		// TODO Auto-generated method stub
 		if (m instanceof ObserverMessage) {
 			ObserverMessage message = (ObserverMessage) m;
 			if (message.getMessage()==ObserverMessage.PLAY) {
