@@ -5,6 +5,7 @@ title VARCHAR(100) NOT NULL,
 trackno TINYINT,
 album VARCHAR(50),
 year INT,
+genre VARCHAR(30),
 filename VARCHAR(200) NOT NULL,
 md5sum CHAR(32) NOT NULL
 );

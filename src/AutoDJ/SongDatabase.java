@@ -132,6 +132,7 @@ public class SongDatabase {
 			query+=", " + song.getTrackno();
 			query+=", \"" + song.getAlbum() + "\"";
 			query+=", " + song.getYear();
+			query+=", \"" + song.getGenre() + "\"";
 			query+=", \"" + song.getFile().getAbsolutePath() + "\"";
 			query+=", '" + song.getMD5sum() + "'";
 			query+=")";
@@ -171,9 +172,10 @@ public class SongDatabase {
 				int trackno = rs.getInt("trackno");
 				String album = rs.getString("album");
 				int year = rs.getInt("year");
+				String genre = rs.getString("genre");
 				File filename = new File (rs.getString("filename"));
 				String md5sum = rs.getString("md5sum");
-				Song thisSong = new Song (id, artist, title, trackno, album, year, filename, md5sum);
+				Song thisSong = new Song (id, artist, title, trackno, album, year, genre, filename, md5sum);
 				songList.add(thisSong);
 			}
 			closeConnection();

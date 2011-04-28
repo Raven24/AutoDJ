@@ -63,6 +63,10 @@ public class Song {
 	 */
 	private int year;
 	/**
+	 *The genre this song belongs to.
+	 */
+	private String genre;
+	/**
 	 *The MP3 file this song is stored in as a File object.
 	 */
 	private File filename;
@@ -96,7 +100,7 @@ public class Song {
 				album = tag.getFirst(ID3v24Frames.FRAME_ID_ALBUM);
 				year = Integer.parseInt(tag.getFirst(ID3v24Frames.FRAME_ID_YEAR));
 				trackno = Integer.parseInt(tag.getFirst(ID3v24Frames.FRAME_ID_TRACK));
-				// 	FRAME_ID_GENRE, 
+				genre = tag.getFirst(ID3v24Frames.FRAME_ID_GENRE); 
 			} else {
 				throw new RuntimeException ("File "+this.filename.getAbsolutePath()+" has no ID3v2 tag!");
 			}
@@ -113,17 +117,20 @@ public class Song {
 	 * @param title The title of this song.
 	 * @param trackno The track number of this song on the given album.
 	 * @param album The name of the album this song is on.
+	 * @param genre genre this song belongs to.
 	 * @param year The year this song was first released to public.
 	 * @param filename A File object storing the filename of the MP3 file.
 	 * @param md5sum The md5sum of this MP3 file.
 	 */
-	public Song(int id, String artist, String title, int trackno, String album, int year, File filename, String md5sum) {
+	public Song(int id, String artist, String title, int trackno, String album,
+			int year, String genre, File filename, String md5sum) {
 		this.id=id;
 		this.artist=artist;
 		this.title=title;
 		this.trackno=trackno;
 		this.album=album;
 		this.year=year;
+		this.genre=genre;
 		this.filename=filename;
 		this.md5sum=md5sum;
 	}
@@ -202,6 +209,14 @@ public class Song {
 	 */
 	public int getYear() {
 		return this.year;
+	}
+	
+	/**
+	 * Returns the genre this song belongs to.
+	 * @return The genre this song belongs to.
+	 */
+	public String getGenre() {
+		return this.genre;
 	}
 	
 	/**
