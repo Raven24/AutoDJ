@@ -20,6 +20,7 @@
 
 package AutoDJ;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -29,6 +30,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import org.jaudiotagger.audio.mp3.MP3File;
+import org.jaudiotagger.tag.datatype.Artwork;
 import org.jaudiotagger.tag.id3.AbstractID3v2Tag;
 import org.jaudiotagger.tag.id3.ID3v24Frames;
 
@@ -58,6 +60,10 @@ public class Song {
 	 * The name of the album this song was released on.
 	 */
 	private String album;
+	/**
+	 * The cover art of this song.
+	 */
+	private Artwork cover;
 	/**
 	 * The year song was released in.
 	 */
@@ -98,6 +104,7 @@ public class Song {
 				artist = tag.getFirst(ID3v24Frames.FRAME_ID_ARTIST);
 				title = tag.getFirst(ID3v24Frames.FRAME_ID_TITLE);
 				album = tag.getFirst(ID3v24Frames.FRAME_ID_ALBUM);
+				cover = tag.getFirstArtwork();
 				year = Integer.parseInt(tag.getFirst(ID3v24Frames.FRAME_ID_YEAR));
 				trackno = Integer.parseInt(tag.getFirst(ID3v24Frames.FRAME_ID_TRACK));
 				genre = tag.getFirst(ID3v24Frames.FRAME_ID_GENRE); 
@@ -123,12 +130,13 @@ public class Song {
 	 * @param md5sum The md5sum of this MP3 file.
 	 */
 	public Song(int id, String artist, String title, int trackno, String album,
-			int year, String genre, File filename, String md5sum) {
+			Artwork cover, int year, String genre, File filename, String md5sum) {
 		this.id=id;
 		this.artist=artist;
 		this.title=title;
 		this.trackno=trackno;
 		this.album=album;
+		this.cover=cover;
 		this.year=year;
 		this.genre=genre;
 		this.filename=filename;
@@ -201,6 +209,23 @@ public class Song {
 	 */
 	public String getAlbum() {
 		return this.album;
+	}
+	
+	/**
+	 * Returns the cover art of this song.
+	 * @return The cover art of this song.
+	 */
+	public Artwork getCover() {
+		return cover;
+	}
+	
+	/**
+	 * Returns the cover art of this song.
+	 * @return The cover art of this song.
+	 * @throws IOException 
+	 */
+	public BufferedImage getCoverAsBufferedImage() throws IOException {
+		return cover.getImage();
 	}
 	
 	/**
@@ -278,5 +303,4 @@ public class Song {
 	public boolean compareFile(Song song) {
 		return this.getFile().equals(song.getFile());
 	}
-	
 }
