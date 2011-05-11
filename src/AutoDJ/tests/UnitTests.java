@@ -1,7 +1,9 @@
-package djay.tests;
+package AutoDJ.tests;
 
 import djay.AudioFileIndexer;
 import java.io.*;
+import AutoDJ.*;
+import AutoDJ.audioPlayer.*;
 
 /**
  * This class produces a test executeable to check the functionality 
@@ -15,6 +17,8 @@ import java.io.*;
  * -d/--readDir
  * 		takes an _absolute_ directory and analyzes all audio files
  * 		it finds inside. prints out the metadata of each file
+ * -p/--play
+ * 		takes an _absolute_ filename and tries to play it
  * 
  * @author Florian Staudacher
  *
@@ -23,6 +27,8 @@ import java.io.*;
 
 public class UnitTests {
 
+    	static PlayerThread t;
+    	
 	/**
 	 * @param args
 	 */
@@ -41,8 +47,8 @@ public class UnitTests {
 				
 			// read one or more files
 			} else if (command.equalsIgnoreCase("readMp3") 
-						|| command.equalsIgnoreCase("readOgg")
-						|| command.equalsIgnoreCase("f")) {
+				|| command.equalsIgnoreCase("readOgg")
+				|| command.equalsIgnoreCase("f")) {
 				// see if the param is not just another command
 				if(!param.startsWith("-")) {
 					out("reading "+param+" ...");
@@ -54,7 +60,7 @@ public class UnitTests {
 				
 			// read a whole directory
 			} else if (command.equalsIgnoreCase("d")
-						|| command.equalsIgnoreCase("readDir")) {
+				|| command.equalsIgnoreCase("readDir")) {
 				// see if the param is not just another command
 				if(!param.startsWith("-")) {
 					File dir = new File(param);
@@ -73,8 +79,32 @@ public class UnitTests {
 					}
 					
 				}
-				
-			} else out("unknown command");
+			// play back an audio file
+			} else if( command.equalsIgnoreCase("p")
+				|| command.equalsIgnoreCase("play") ) {
+			    if( param.startsWith("-")) continue; // just another command, not a filename
+			    
+			    Song test = new Song(new File(param));
+			    
+			    out("Now playing: " + test.getArtist() + " - " + test.getTitle() + " for 5 Seconds");
+			    
+			    t = new PlayerThread();
+			    t.start();
+			    t.loadSong(test);
+			
+			    ( new Thread() {
+				public void run() {
+				    try {
+					Thread.sleep(5000);
+				    } catch(Exception e) {}
+				    
+				    t.kill();
+				    out("\nPlayback stopped.");
+				}
+			    }).start();
+			   
+			} else 
+			    out("unknown command");
 			
 		}
 	}
