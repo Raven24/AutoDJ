@@ -26,5 +26,4 @@ public class SongJList extends JList {
 		super(listData);
 		// TODO Auto-generated constructor stub
 	}
-
 }

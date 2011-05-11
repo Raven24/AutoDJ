@@ -60,27 +60,38 @@ public class AutoDJView extends Observable implements Observer {
 	 * The AutoDJ main window.
 	 */
 	private JFrame gui;
-	/**
-	 * The first panel containing the playlist, song library and a search field.
-	 */
-	private JPanel mainPanel;
-	/**
-	 * The second panel which displays the cover art, if available.
-	 */
-	private JPanel imagePanel;
-	/**
-	 * The third panel for all the configuration.
-	 */
-	private JPanel configPanel;
-	/**
-	 * The player panel containing the play/pause-button, the next-song-button
-	 * and a progress bar.
-	 */
-	private JPanel playerPanel;
-	/**
-	 * The text area where all log messages are displayed.
-	 */
-	private JTextArea logPanel;
+		/**
+		 * The first panel containing the playlist, song library and a search field.
+		 */
+		private JPanel mainPanel;
+			/*
+			 * A SongJList displaying the current playlist.
+			 */
+			private SongJList playlistList;
+			/*
+			 * A SongJList displaying the current library search results.
+			 */
+			private SongJList libraryList;
+	
+		/**
+		 * The second panel which displays the cover art, if available.
+		 */
+		private JPanel imagePanel;
+	
+		/**
+		 * The third panel for all the configuration.
+		 */
+		private JPanel configPanel;
+			/**
+			 * The text area where all log messages are displayed.
+			 */
+			private JTextArea logPanel;
+		
+		/**
+		 * The player panel containing the play/pause-button, the next-song-button
+		 * and a progress bar.
+		 */
+		private JPanel playerPanel;
 
 	/**
 	 * Creates a new AutoDJView object and displays it.
@@ -161,7 +172,7 @@ public class AutoDJView extends Observable implements Observer {
 		leftConstraints.gridy = 0;
 		leftConstraints.insets=new Insets(5,5,5,5);
 		mainPanel.add(playListLabel, leftConstraints);
-		SongJList playlistList = new SongJList();
+		playlistList = new SongJList();
 		JScrollPane playlistScrollpane = new JScrollPane (playlistList);
 		playlistScrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		leftConstraints.fill=GridBagConstraints.BOTH;
@@ -182,7 +193,7 @@ public class AutoDJView extends Observable implements Observer {
 		rightConstraints.weightx = 0.5;
 		rightConstraints.gridy = 1;
 		mainPanel.add(librarySearchField, rightConstraints);
-		SongJList libraryList = new SongJList();
+		libraryList = new SongJList();
 		JScrollPane libraryScrollpane = new JScrollPane (libraryList);
 		libraryScrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		rightConstraints.fill=GridBagConstraints.BOTH;
@@ -291,19 +302,22 @@ public class AutoDJView extends Observable implements Observer {
 	 * Updates this object if changes in an other object occurs. At the moment
 	 * this class is notified only if something in AutoDJModel has changed,
 	 * e.g. a new log message was created, the playlist changed, etc.
-	 * @param arg0 The object which notified this class of some change.
-	 * @param m The ObserverMessage the object which changed sent.
+	 * @param model The object which notified this class of some change.
+	 * @param msg The ObserverMessage the object which changed sent.
 	 * @see ObserverMessage
 	 */
 	@Override
-	public void update(Observable arg0, Object m) {
-		ObserverMessage message = (ObserverMessage) m;
-		if (m instanceof ObserverMessage) {
+	public void update(Observable model, Object msg) {
+		ObserverMessage message = (ObserverMessage) msg;
+		if (msg instanceof ObserverMessage) {
 			if (message.getMessage()==ObserverMessage.NEW_LOG_MESSAGE) {
-				String logmessage = ((AutoDJModel) arg0).getLogtext();
+				String logmessage = ((AutoDJModel) model).getLogtext();
 				if (!logmessage.endsWith("\n")) logmessage+="\n";
 				logPanel.append(logmessage);
 				logPanel.setCaretPosition(logPanel.getDocument().getLength());
+			} else if (message.getMessage()==ObserverMessage.LIBRARY_CHANGED) {
+				// display new content
+				libraryList.setListData(((AutoDJModel) model).getSongLibrary());
 			}
 		}
 	}

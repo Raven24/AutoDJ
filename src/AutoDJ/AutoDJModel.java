@@ -45,7 +45,7 @@ public class AutoDJModel extends Observable {
 	 * as a Vector of Song objects.
 	 * @see Song
 	 */
-	private Vector<Song> songLibraryView;
+	private Vector<Song> songLibrary;
 	/**
 	 * A log message created by AutoDJ to display in the log window of AutoDJView.
 	 * @see AutoDJView
@@ -57,7 +57,7 @@ public class AutoDJModel extends Observable {
 	 */
 	public AutoDJModel () {
 		playlist = null;
-		songLibraryView = null;
+		songLibrary = null;
 		logtext = "";
 	}
 	
@@ -82,8 +82,8 @@ public class AutoDJModel extends Observable {
 	 * as a Vector of Song objects.
 	 * @return A Vector of Song objects.
 	 */
-	public Vector<Song> getSongLibraryView() {
-		return songLibraryView;
+	public Vector<Song> getSongLibrary() {
+		return songLibrary;
 	}
 
 	/**
@@ -91,8 +91,10 @@ public class AutoDJModel extends Observable {
 	 * as a Vector of Song objects.
 	 * @param songLibraryView A Vector of Song objects.
 	 */
-	public void setSongLibraryView(Vector<Song> songLibraryView) {
-		this.songLibraryView = songLibraryView;
+	public void setSongLibrary(Vector<Song> songList) {
+		songLibrary = songList;
+		setChanged();
+		notifyObservers(new ObserverMessage(ObserverMessage.LIBRARY_CHANGED));
 	}
 
 	/**

@@ -52,6 +52,12 @@ public class ObserverMessage {
 	public static final int NEW_LOG_MESSAGE = 101;
 	
 	/**
+	 * The integer value representing a change in the
+	 * song library.
+	 */
+	public static final int LIBRARY_CHANGED = 102;
+	
+	/**
 	 * The integer value which stores the message.
 	 */
 	private int message;

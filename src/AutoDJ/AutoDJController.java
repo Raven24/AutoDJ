@@ -65,7 +65,7 @@ public class AutoDJController implements Observer {
 	 * Rescans the harddisk for all MP3 files and updates the
 	 * song database, if necessary.
 	 */
-	private void rescanDatabase () {
+	private void rescanDatabase() {
 		// get all songs from DB
 		Vector<Song> databaseList = new Vector<Song>();
 		databaseList = myDatabase.getSongs("");
@@ -148,6 +148,17 @@ public class AutoDJController implements Observer {
 	}
 
 	/**
+	 * Query the song database for songs matching the search string
+	 * and update AutoDJModel accordingly.
+	 * @param search The search string, which will be matched against
+	 * the songs artist, title or album.
+	 * @see SongDatabase
+	 */
+	public void filterSongLibrary(String search) {
+		model.setSongLibrary(myDatabase.getSongs(search));
+	}
+	
+	/**
 	 * Updates this object if changes in an other object occurs. At the moment
 	 * this class is notified only if something in AutoDJView has changed,
 	 * e.g. a button was pressed etc.
@@ -164,7 +175,7 @@ public class AutoDJController implements Observer {
 			} else if (message.getMessage()==ObserverMessage.PAUSE) {
 				//someone told us to stop playing
 			} else if (message.getMessage()==ObserverMessage.RESCAN_LIBRARY) {
-				rescanDatabase ();
+				rescanDatabase();
 			}
 		} else {
 			System.out.println ("Unknown Observer-Message caught!");

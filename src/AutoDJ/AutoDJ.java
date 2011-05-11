@@ -71,6 +71,11 @@ public class AutoDJ {
 		
 		// view observes model
 		model.addObserver(view);
+		
+		// get initial song library
+		controller.filterSongLibrary("");
+		
+		// done starting up
 		model.setLogtext(VERSION + " started!");
 	}
 }
