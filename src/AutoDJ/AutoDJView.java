@@ -35,7 +35,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -152,10 +151,6 @@ public class AutoDJView extends Observable implements Observer {
 	 * Creates the first panel containing the playlist, song library and a search field.
 	 */
 	private void createMainPanel() {
-		// FIXME!
-		// create a string array to display in the jlists
-		// remove this when possible
-		String[] data = {"one", "two", "three", "four", "one", "two", "three", "four"};
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new GridBagLayout());
 		GridBagConstraints leftConstraints = new GridBagConstraints();
@@ -166,7 +161,7 @@ public class AutoDJView extends Observable implements Observer {
 		leftConstraints.gridy = 0;
 		leftConstraints.insets=new Insets(5,5,5,5);
 		mainPanel.add(playListLabel, leftConstraints);
-		JList playlistList = new JList(data);
+		SongJList playlistList = new SongJList();
 		JScrollPane playlistScrollpane = new JScrollPane (playlistList);
 		playlistScrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		leftConstraints.fill=GridBagConstraints.BOTH;
@@ -187,7 +182,7 @@ public class AutoDJView extends Observable implements Observer {
 		rightConstraints.weightx = 0.5;
 		rightConstraints.gridy = 1;
 		mainPanel.add(librarySearchField, rightConstraints);
-		JList libraryList = new JList(data);
+		SongJList libraryList = new SongJList();
 		JScrollPane libraryScrollpane = new JScrollPane (libraryList);
 		libraryScrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		rightConstraints.fill=GridBagConstraints.BOTH;
