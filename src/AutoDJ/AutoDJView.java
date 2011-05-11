@@ -64,11 +64,15 @@ public class AutoDJView extends Observable implements Observer {
 		 * The first panel containing the playlist, song library and a search field.
 		 */
 		private JPanel mainPanel;
-			/*
+			/**
 			 * A SongJList displaying the current playlist.
 			 */
 			private SongJList playlistList;
-			/*
+			/**
+			 * A text field to enter a search string for the song library.
+			 */
+			private JTextField librarySearchField;
+			/**
 			 * A SongJList displaying the current library search results.
 			 */
 			private SongJList libraryList;
@@ -188,7 +192,13 @@ public class AutoDJView extends Observable implements Observer {
 		rightConstraints.gridy = 0;
 		rightConstraints.insets=new Insets(5,5,5,5);
 		mainPanel.add(libraryLabel, rightConstraints);
-		JTextField librarySearchField = new JTextField();
+		librarySearchField = new JTextField();
+		librarySearchField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setChanged();
+				notifyObservers(new ObserverMessage(ObserverMessage.SEARCHTEXT_CHANGED));
+			}
+		});
 		rightConstraints.fill=GridBagConstraints.HORIZONTAL;
 		rightConstraints.weightx = 0.5;
 		rightConstraints.gridy = 1;
@@ -298,6 +308,14 @@ public class AutoDJView extends Observable implements Observer {
 		gui.setVisible(b);
 	}
 
+	/**
+	 * Returns the entered text in the library search field.
+	 * @return the String entered in the library search field.
+	 */
+	public String getSearchText() {
+		return librarySearchField.getText();
+	}
+	
 	/**
 	 * Updates this object if changes in an other object occurs. At the moment
 	 * this class is notified only if something in AutoDJModel has changed,

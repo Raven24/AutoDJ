@@ -162,20 +162,22 @@ public class AutoDJController implements Observer {
 	 * Updates this object if changes in an other object occurs. At the moment
 	 * this class is notified only if something in AutoDJView has changed,
 	 * e.g. a button was pressed etc.
-	 * @param arg0 The object which notified this class of some change.
-	 * @param m The ObserverMessage the object which changed sent.
+	 * @param view The object which notified this class of some change.
+	 * @param msg The ObserverMessage the object which changed sent.
 	 * @see ObserverMessage
 	 */
 	@Override
-	public void update(Observable arg0, Object m) {
-		if (m instanceof ObserverMessage) {
-			ObserverMessage message = (ObserverMessage) m;
+	public void update(Observable view, Object msg) {
+		if (msg instanceof ObserverMessage) {
+			ObserverMessage message = (ObserverMessage) msg;
 			if (message.getMessage()==ObserverMessage.PLAY) {
 				//someone told us to play
 			} else if (message.getMessage()==ObserverMessage.PAUSE) {
 				//someone told us to stop playing
 			} else if (message.getMessage()==ObserverMessage.RESCAN_LIBRARY) {
 				rescanDatabase();
+			} else if (message.getMessage()==ObserverMessage.SEARCHTEXT_CHANGED) {
+				filterSongLibrary(((AutoDJView) view).getSearchText());
 			}
 		} else {
 			System.out.println ("Unknown Observer-Message caught!");

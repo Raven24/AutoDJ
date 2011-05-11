@@ -58,6 +58,11 @@ public class ObserverMessage {
 	public static final int LIBRARY_CHANGED = 102;
 	
 	/**
+	 * The integer value representing a change in the
+	 * search text for the song library.
+	 */
+	public static final int SEARCHTEXT_CHANGED = 103;
+	/**
 	 * The integer value which stores the message.
 	 */
 	private int message;
