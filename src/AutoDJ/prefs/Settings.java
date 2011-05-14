@@ -28,14 +28,26 @@ import java.util.prefs.Preferences;
  */
 public class Settings {
 
-    private static Preferences p = Preferences.userNodeForPackage(Settings.class);
+    private static Preferences p;
     
     public static String get(String key, String defaultValue) {
+	if( p == null ) {
+	    p = Preferences.userNodeForPackage(Settings.class);
+	}
 	return p.get(key, defaultValue);
     }
     
+    public static String get(String key) {
+	return Settings.get(key, "");
+    }
+    
     public static void set(String key, String val) {
+	if( p == null ) {
+	    p = Preferences.userNodeForPackage(Settings.class);
+	}
 	p.put(key, val);
     }
+    
+    
 
 }

@@ -109,16 +109,28 @@ public class UnitTests {
 			   
 			} else if( command.equalsIgnoreCase("s")
 				|| command.equalsIgnoreCase("settings") ) {
-			    if( param.startsWith("-")) continue; // just another command, ignore
-			    
+			    			    
 			    // initialize preferences 
 			    System.setProperty("java.util.prefs.PreferencesFactory", FilePreferencesFactory.class.getName());
 			    			    
 			    out("## testing settings storage implementation");
 			    
-			    Settings.set("tests/test1", "123456789");
-			    Settings.set("tests/test2", "abcdefghi");
-			    Settings.set("tests/time", String.valueOf(System.currentTimeMillis()));
+			    out(Settings.get("tests.test1","abc"));
+			    
+			    if( !Settings.get("tests.test1").isEmpty() ) {
+				out("already set: " + Settings.get("tests.test1"));
+			    }
+			    Settings.set("tests.test1", "123456789");
+			    
+			    if( !Settings.get("tests.test2").isEmpty() ) {
+				out("already set: " + Settings.get("tests.test2"));
+			    }
+			    Settings.set("tests.test2", "abcdefghi");
+			    
+			    if( !Settings.get("tests.time").isEmpty() ) {
+				out("already set: " + Settings.get("tests.time"));
+			    }
+			    Settings.set("tests.time", String.valueOf(System.currentTimeMillis()));
 			   
 			} else 
 			    out("unknown command");
