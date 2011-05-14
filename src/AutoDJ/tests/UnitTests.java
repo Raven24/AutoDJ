@@ -4,10 +4,12 @@ import djay.AudioFileIndexer;
 import java.io.*;
 import AutoDJ.*;
 import AutoDJ.audioPlayer.*;
+import AutoDJ.prefs.FilePreferencesFactory;
+import AutoDJ.prefs.Settings;
 
 /**
  * This class produces a test executeable to check the functionality 
- * of metadata parsing from audio file headers.
+ * of various parts of the AutoDJ program.
  * 
  * The binary can be called with the following parameters
  * 
@@ -19,6 +21,8 @@ import AutoDJ.audioPlayer.*;
  * 		it finds inside. prints out the metadata of each file
  * -p/--play
  * 		takes an _absolute_ filename and tries to play it
+ * -s/--settings
+ * 		tries to write and then read settings to the user's confif file
  * 
  * @author Florian Staudacher
  *
@@ -102,6 +106,19 @@ public class UnitTests {
 				    out("\nPlayback stopped.");
 				}
 			    }).start();
+			   
+			} else if( command.equalsIgnoreCase("s")
+				|| command.equalsIgnoreCase("settings") ) {
+			    if( param.startsWith("-")) continue; // just another command, ignore
+			    
+			    // initialize preferences 
+			    System.setProperty("java.util.prefs.PreferencesFactory", FilePreferencesFactory.class.getName());
+			    			    
+			    out("## testing settings storage implementation");
+			    
+			    Settings.set("tests/test1", "123456789");
+			    Settings.set("tests/test2", "abcdefghi");
+			    Settings.set("tests/time", String.valueOf(System.currentTimeMillis()));
 			   
 			} else 
 			    out("unknown command");
