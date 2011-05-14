@@ -22,6 +22,8 @@ package AutoDJ;
 
 import javax.swing.UIManager;
 
+import AutoDJ.prefs.*;
+
 /**
  * AutoDJ is a program to play MP3 files. It remembers which files users
  * played in what order and how often and saves this information to a MySQL
@@ -47,6 +49,9 @@ public class AutoDJ {
 	 * @param args command line parameters (currently not in use)
 	 */
 	public static void main(String[] args) {
+	    	// initialize preferences 
+	    	System.setProperty("java.util.prefs.PreferencesFactory", FilePreferencesFactory.class.getName());
+	    	
 		// try to use systems look and feel for GUI
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
