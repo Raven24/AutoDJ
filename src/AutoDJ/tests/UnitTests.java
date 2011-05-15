@@ -114,23 +114,21 @@ public class UnitTests {
 			    System.setProperty("java.util.prefs.PreferencesFactory", FilePreferencesFactory.class.getName());
 			    			    
 			    out("## testing settings storage implementation");
-			    
-			    out(Settings.get("tests.test1","abc"));
-			    
-			    if( !Settings.get("tests.test1").isEmpty() ) {
-				out("already set: " + Settings.get("tests.test1"));
+			 
+			    if( !Settings.get("test1").isEmpty() ) {
+				out("already set: " + Settings.get("test1"));
 			    }
-			    Settings.set("tests.test1", "123456789");
+			    Settings.set("test1", "123456789");
 			    
-			    if( !Settings.get("tests.test2").isEmpty() ) {
-				out("already set: " + Settings.get("tests.test2"));
+			    if( !Settings.get("test2").isEmpty() ) {
+				out("already set: " + Settings.get("test2"));
 			    }
-			    Settings.set("tests.test2", "abcdefghi");
+			    Settings.set("test2", "abcdefghi");
 			    
-			    if( !Settings.get("tests.time").isEmpty() ) {
-				out("already set: " + Settings.get("tests.time"));
+			    if( !Settings.get("time").isEmpty() ) {
+				out("already set: " + Settings.get("time"));
 			    }
-			    Settings.set("tests.time", String.valueOf(System.currentTimeMillis()));
+			    Settings.set("time", String.valueOf(System.currentTimeMillis()));
 			   
 			} else 
 			    out("unknown command");
