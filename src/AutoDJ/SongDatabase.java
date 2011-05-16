@@ -63,9 +63,8 @@ public class SongDatabase {
 	 * for each song? Does each song exist in the database which is
 	 * referenced in the played-table?
 	 */
-	public SongDatabase() {
-		// FIXME!
-		url = "jdbc:mysql://localhost/autodj?user=christian&password=password";
+	public SongDatabase(String db) {
+		url = db;
 		createConnection();
 		// do we have the tables we need?
 		Statement stmt = null;

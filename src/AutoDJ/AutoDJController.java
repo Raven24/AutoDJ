@@ -27,6 +27,8 @@ import java.util.Vector;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import AutoDJ.prefs.Settings;
+
 /**
  * AutoDJController is a class which represents AutoDJ's Controller
  * part as specified in MVC. It reacts on user input coming from
@@ -57,7 +59,12 @@ public class AutoDJController implements Observer {
 	 * interact with.
 	 */
 	public AutoDJController (AutoDJModel m) {
-		myDatabase = new SongDatabase();
+		final String dbUser=Settings.get("dbUser");
+		final String dbPass=Settings.get("dbPass");
+		final String dbHost=Settings.get("dbHost");
+		final String dbName=Settings.get("dbName");
+		final String url="jdbc:mysql://"+dbHost+"/"+dbName+"?user="+dbUser+"&password="+dbPass;
+		myDatabase = new SongDatabase(url);
 		model = m;
 	}
 	
@@ -71,10 +78,8 @@ public class AutoDJController implements Observer {
 		databaseList = myDatabase.getSongs("");
 		
 		// get all songs from HD
-		// FIXME!
-		// get the directory from a config file
-		final String dirname="/home/christian/Musik/TEST";
-		File mp3dir = new File(dirname);
+		final String mp3Dir=Settings.get("mp3Dir");
+		File mp3dir = new File(mp3Dir);
 		Vector<File> mp3Files = new Vector<File>();
 		mp3Files = getAllmp3Files(mp3dir, mp3Files);
 		
