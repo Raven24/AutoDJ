@@ -168,7 +168,7 @@ public class Song {
 			catch(IOException e) {
 				throw new RuntimeException("Unable to close input stream for MD5 calculation", e);
 			}
-		}		
+		}
 	}
 
 	/**
@@ -178,7 +178,7 @@ public class Song {
 	public int getId() {
 		return this.id;
 	}
-	
+
 	/**
 	 * Returns the artist of this song.
 	 * @return The artist of this song.
@@ -186,7 +186,7 @@ public class Song {
 	public String getArtist() {
 		return this.artist;
 	}
-	
+
 	/**
 	 * Returns the title of this song.
 	 * @return The title of this song.
@@ -194,7 +194,7 @@ public class Song {
 	public String getTitle() {
 		return this.title;
 	}
-	
+
 	/**
 	 * Returns the track number of this song on the given album.
 	 * @return The track number of this song on the given album.
@@ -210,7 +210,7 @@ public class Song {
 	public String getAlbum() {
 		return this.album;
 	}
-	
+
 	/**
 	 * Returns the cover art of this song.
 	 * @return The cover art of this song.
@@ -218,7 +218,7 @@ public class Song {
 	public Artwork getCover() {
 		return cover;
 	}
-	
+
 	/**
 	 * Returns the cover art of this song.
 	 * @return The cover art of this song.
@@ -227,7 +227,7 @@ public class Song {
 	public BufferedImage getCoverAsBufferedImage() throws IOException {
 		return cover.getImage();
 	}
-	
+
 	/**
 	 * Returns the year this song was first released to public.
 	 * @return The year this song was first released to public.
@@ -235,7 +235,7 @@ public class Song {
 	public int getYear() {
 		return this.year;
 	}
-	
+
 	/**
 	 * Returns the genre this song belongs to.
 	 * @return The genre this song belongs to.
@@ -243,7 +243,7 @@ public class Song {
 	public String getGenre() {
 		return this.genre;
 	}
-	
+
 	/**
 	 * Returns a File object storing the filename of the MP3 file.
 	 * @return A File object storing the filename of the MP3 file.
@@ -251,7 +251,7 @@ public class Song {
 	public File getFile() {
 		return this.filename;
 	}
-	
+
 	/**
 	 * Returns the md5sum of this MP3 file.
 	 * @return The md5sum of this MP3 file.
@@ -259,7 +259,7 @@ public class Song {
 	public String getMD5sum() {
 		return this.md5sum;
 	}
-	
+
 	/**
 	 * Returns a String representation of the data stored
 	 * in this object. Useful for debugging purposes.
@@ -274,7 +274,7 @@ public class Song {
 		retval+="file has a MD5sum of " + getMD5sum();
 		return retval;
 	}
-	
+
 	/**
 	 * Compares two Song instances. Returns true only if the md5sums
 	 * match (meaning the file content doesn't differ) AND the fully
@@ -294,7 +294,7 @@ public class Song {
 	public boolean compareMD5sum(Song song) {
 		return this.getMD5sum().equals(song.getMD5sum());
 	}
-	
+
 	/**
 	 * Compares two Song instances. Returns true only if the fully
 	 * qualified path name doesn't differ.
