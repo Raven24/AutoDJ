@@ -50,7 +50,7 @@ public class SongDatabase {
 	
 	private final String ADD_SONG_QUERY="INSERT INTO songs VALUES (0,?,?,?,?,?,?,?,?,?)";
 	private final String GET_SONG_QUERY="SELECT * FROM songs WHERE artist LIKE ? " +
-			"OR title LIKE ? OR album LIKE ?";
+			"OR title LIKE ? OR album LIKE ? ORDER BY year, trackno, artist, album";
 	private final String CHANGE_SONG_QUERY="UPDATE songs SET artist=?, title=?, " +
 			"trackno=?, album=?, cover=?, year=?, filename=?, md5sum=? WHERE id=?";
 
