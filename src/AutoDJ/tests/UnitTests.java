@@ -1,9 +1,9 @@
 package AutoDJ.tests;
 
-import djay.AudioFileIndexer;
 import java.io.*;
 import AutoDJ.*;
 import AutoDJ.audioPlayer.*;
+import AutoDJ.metaReader.AudioFileIndexer;
 import AutoDJ.prefs.FilePreferencesFactory;
 import AutoDJ.prefs.Settings;
 

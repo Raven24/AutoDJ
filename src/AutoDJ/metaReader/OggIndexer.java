@@ -44,6 +44,7 @@ public class OggIndexer extends AudioFileIndexer {
 		album	= vorbisComments.get("album");
 		artist	= vorbisComments.get("artist");
 		year	= vorbisComments.get("date");
+		trackno = vorbisComments.get("tracknumber");
 		genre	= vorbisComments.get("genre");
 	}
 	
