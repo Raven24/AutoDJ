@@ -1,8 +1,9 @@
-package djay;
+package AutoDJ.metaReader;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.io.*;
+
 
 /**
  * class Mp3Indexer

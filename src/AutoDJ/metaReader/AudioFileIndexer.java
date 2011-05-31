@@ -1,9 +1,10 @@
-package djay;
+package AutoDJ.metaReader;
 
 import java.nio.ByteBuffer;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.lang.Exception;
+
 
 /**
  * abstract class AudioFileIndexer
