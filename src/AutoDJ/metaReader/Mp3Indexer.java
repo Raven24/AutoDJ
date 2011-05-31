@@ -27,11 +27,18 @@ public class Mp3Indexer extends AudioFileIndexer {
 		}
 	}
 	
+	/**
+	 *  read the song metadata, 
+	 *  decide which tag version to use
+	 */
 	public void populateMetadata() {
-		if (version == 1) {
-			populateMetadataV1();
-		} else if (version == 2) {
-			populateMetadataV2();
+		switch(version) {
+			case 1:
+				populateMetadataV1();
+				break;
+			case 2:
+				populateMetadataV2();
+				break;
 		}
 	}
 		
@@ -80,7 +87,7 @@ public class Mp3Indexer extends AudioFileIndexer {
 		} catch (Exception e) {
 			return false;
 		}
-		
+				
 		String ident = new String(frame);
 		
 		//System.out.println(ident+": "+length);
@@ -156,8 +163,7 @@ public class Mp3Indexer extends AudioFileIndexer {
 		} else if ("TPOS".equals(ident)) { skipBytes(length);
 		} else if ("TPUB".equals(ident)) { skipBytes(length);
 		} else if ("TRCK".equals(ident)) { 
-			//System.out.println(getID3v2Text(length));
-			skipBytes(length);
+			trackno = getID3v2Text(length);
 		} else if ("TRDA".equals(ident)) { skipBytes(length);
 		} else if ("TRSN".equals(ident)) { skipBytes(length);
 		} else if ("TRSO".equals(ident)) { skipBytes(length);

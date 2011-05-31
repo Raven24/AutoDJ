@@ -23,9 +23,15 @@ public abstract class AudioFileIndexer {
 	protected String filePath; 
 	
 	// here comes the metadata
-	protected String title, artist, album, comment, genre, year;
-	protected long 	lastModified,	// milliseconds since 1970-01-01 00:00 
-					length;			// filesize in bytes
+	protected String title, 
+					 artist, 
+					 album, 
+					 comment, 
+					 genre,
+					 trackno,
+					 year;
+	protected long 	 lastModified,	// milliseconds since 1970-01-01 00:00 
+					 length;			// filesize in bytes
 	
 	/**
 	 * reads the metadata in the audio file and saves it to local member variables
@@ -73,12 +79,12 @@ public abstract class AudioFileIndexer {
 	}
 	
 	public String toString() {
-		return title+" by "+artist; //+"\n\t"+filePath;
+		return title+" by "+artist +"\n\t"+filePath;
 	}
 
 	
 	/**
-	 * how nice, java only uses big endian encoding, we need little endian
+	 * how nice: java only uses big endian encoding, but we need little endian
 	 * also, all integers are signed per default, which cannot be turned off
 	 * ... therefore we need to juggle around some bytes by hand
 	 */
