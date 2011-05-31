@@ -177,6 +177,7 @@ public class AutoDJView extends Observable implements Observer {
 		leftConstraints.insets=new Insets(5,5,5,5);
 		mainPanel.add(playListLabel, leftConstraints);
 		playlistList = new SongJList();
+		playlistList.setCellRenderer(new SongListRenderer());
 		JScrollPane playlistScrollpane = new JScrollPane (playlistList);
 		playlistScrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		leftConstraints.fill=GridBagConstraints.BOTH;
@@ -204,6 +205,7 @@ public class AutoDJView extends Observable implements Observer {
 		rightConstraints.gridy = 1;
 		mainPanel.add(librarySearchField, rightConstraints);
 		libraryList = new SongJList();
+		libraryList.setCellRenderer(new SongListRenderer());
 		JScrollPane libraryScrollpane = new JScrollPane (libraryList);
 		libraryScrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		rightConstraints.fill=GridBagConstraints.BOTH;
