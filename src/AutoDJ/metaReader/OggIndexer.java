@@ -30,6 +30,10 @@ public class OggIndexer extends AudioFileIndexer {
 	protected int numberVorbisComments;
 	protected HashMap<String, String> vorbisComments;
 
+	/**
+	 * initialize this object and start reading the file
+	 * @param String path
+	 */
 	public OggIndexer(String path) {
 		filePath = path;
 		try {
@@ -39,6 +43,9 @@ public class OggIndexer extends AudioFileIndexer {
 		}
 	}
 	
+	/**
+	 * get the values out of the metadata
+	 */
 	public void populateMetadata() {
 		title 	= vorbisComments.get("title");
 		album	= vorbisComments.get("album");
@@ -50,6 +57,8 @@ public class OggIndexer extends AudioFileIndexer {
 	
 	/**
 	 * open the file, jump to the comment header and put it in the buffer
+	 * 
+	 * @param String path
 	 */
 	public void readFile(String path) throws Exception {
 		audioFile = new File(path);
@@ -76,6 +85,11 @@ public class OggIndexer extends AudioFileIndexer {
 		return "Ogg-File: "+super.toString();
 	}
 	
+	/**
+	 * adds a vorbis comment tag to the metadata map
+	 * 
+	 * @param byte[] pair
+	 */
 	protected void addToMap(byte[] pair) {
 		String[] vals = new String(pair).split("=");
 		if (vals.length > 1) {
@@ -83,6 +97,11 @@ public class OggIndexer extends AudioFileIndexer {
 		}
 	}
 	
+	/**
+	 * read the vorbis header and do some sanity checks
+	 * 
+	 * @throws Exception
+	 */
 	protected void readOggHeader() throws Exception {
 		byte[] header = new byte[27];
 		raf.readFully(header);

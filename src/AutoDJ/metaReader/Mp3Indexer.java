@@ -18,6 +18,11 @@ public class Mp3Indexer extends AudioFileIndexer {
 	protected int tagSize = 128;	// size of an ID3 tag
 	protected int version = 0;
 	
+	/**
+	 * initialize this object, start to read the audio file
+	 * 
+	 * @param String path
+	 */
 	public Mp3Indexer(String path) {
 		filePath = path;
 		try {
@@ -42,6 +47,10 @@ public class Mp3Indexer extends AudioFileIndexer {
 		}
 	}
 		
+	/**
+	 * read the metadata from a ID3v1 header 
+	 * (hopefully those tags die a slow and painful death, soon)
+	 */
 	protected void populateMetadataV1() {
 		byte[] tag = new byte[3];
         byte[] tagTitle = new byte[30];
@@ -69,6 +78,10 @@ public class Mp3Indexer extends AudioFileIndexer {
         
 	}
 	
+	/**
+	 * read everything we can from an ID3v2 header
+	 * if the tag ends or some other error occurs, stop trying
+	 */
 	protected void populateMetadataV2() {
 		while(true) {
 			if(!readID3v2Tag()) break;
@@ -76,6 +89,12 @@ public class Mp3Indexer extends AudioFileIndexer {
 		
 	}
 	
+	/**
+	 * read a single tag from an ID3v2 header,
+	 * just see which one we got and either save or skip it
+	 * 
+	 * @return boolean success
+	 */
 	protected boolean readID3v2Tag() {
 		byte[] frame = new byte[4];
 		int length;
@@ -193,6 +212,12 @@ public class Mp3Indexer extends AudioFileIndexer {
 		return true;
 	}
 	
+	/**
+	 * get the string value out of an ID3v2 tag
+	 * 
+	 * @param int length in bytes
+	 * @return String value
+	 */
 	protected String getID3v2Text(int size) {
 		byte[] data = new byte[size];
 		try{
@@ -204,6 +229,10 @@ public class Mp3Indexer extends AudioFileIndexer {
 		return "";
 	}
 	
+	/**
+	 * just ignore a given length of bytes
+	 * @param int length
+	 */
 	protected void skipBytes(int size) {
 		try { 
 			buff.position(buff.position()+size);
@@ -212,6 +241,10 @@ public class Mp3Indexer extends AudioFileIndexer {
 		}
 	}
 	
+	/**
+	 * open an MP3 file for reading, do a little sanity check
+	 * and then skip forward until we reach the header
+	 */
 	public void readFile(String path) throws Exception {
 		audioFile = new File(path);
 		raf = new RandomAccessFile(audioFile, "r");
@@ -254,7 +287,7 @@ public class Mp3Indexer extends AudioFileIndexer {
 	}
 	
 	/**
-	 * setting the genre according to the ID3v1 specification
+	 * setting the numerical genre according to the ID3v1 specification
 	 * http://id3.org/d3v2.3.0
 	 * 
 	 * @param num
