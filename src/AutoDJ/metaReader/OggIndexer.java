@@ -1,7 +1,8 @@
-package djay;
+package AutoDJ.metaReader;
 
 import java.io.*;
 import java.util.HashMap;
+
 
 /**
  * class OggIndexer
