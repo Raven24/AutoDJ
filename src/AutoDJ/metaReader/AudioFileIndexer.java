@@ -22,7 +22,7 @@ public abstract class AudioFileIndexer {
 	protected RandomAccessFile raf;
 	protected String filePath; 
 	
-	// here comes the metadata
+	// here comes the metadata definition
 	protected String title, 
 					 artist, 
 					 album, 
@@ -30,19 +30,21 @@ public abstract class AudioFileIndexer {
 					 genre,
 					 trackno,
 					 year;
-	protected long 	 lastModified,	// milliseconds since 1970-01-01 00:00 
-					 length;			// filesize in bytes
+	// TODO: album cover!
+	protected long 	 lastModified,	  // milliseconds since 1970-01-01 00:00 
+					 length;		  // filesize in bytes
 	
 	/**
 	 * reads the metadata in the audio file and saves it to local member variables
+	 * you must call this method once, before you need to read the actual metadata
 	 * 
 	 * TODO: implement in the subclasses
 	 */
 	abstract void populateMetadata();
 	
 	/**
-	 * opens the file and puts the metadata in ByteBuffer buff
-	 * and places the file handle in audioFile
+	 * opens the file and puts the part containing metadata in ByteBuffer buff
+	 * also places the file handle in audioFile
 	 * 
 	 * TODO: implement in the subclass
 	 * 
@@ -52,7 +54,10 @@ public abstract class AudioFileIndexer {
 	abstract void readFile(String path) throws Exception;
 	
 	/**
-	 * gets infos about the file, that are not music-related
+	 * gets infos about the file, calls the populateMetadata method
+	 * also reads some things that are not music-related:
+	 * - last modification date
+	 * - filesize in byte
 	 */
 	public void getFileInfo() {
 		//System.out.println(filePath);
@@ -62,10 +67,10 @@ public abstract class AudioFileIndexer {
 	}
 	
 	/**
-	 * return the matching indexer determined by the file extension
+	 * return the matching indexer subclass determined by the filename extension
 	 * 
-	 * @param fileName
-	 * @return
+	 * @param String fileName
+	 * @return AudioFileIndexer
 	 */
 	public static AudioFileIndexer initIndexer(String fileName) {
 		String ext = fileName.substring(fileName.length()-3);
@@ -78,10 +83,15 @@ public abstract class AudioFileIndexer {
 		return null;
 	}
 	
+	/**
+	 * returns a human-readable representation of the metadata
+	 * coming from the file we just read
+	 * 
+	 * @return String output
+	 */
 	public String toString() {
 		return title+" by "+artist +"\n\t"+filePath;
 	}
-
 	
 	/**
 	 * how nice: java only uses big endian encoding, but we need little endian
@@ -98,6 +108,7 @@ public abstract class AudioFileIndexer {
 		return unsignedBytesToInt(tmp);
 	}
 	
+// currently not needed	
 /*	protected long getLongFromBuff() {
 		byte[] tmp = new byte[8];		
 		try {
@@ -114,7 +125,8 @@ public abstract class AudioFileIndexer {
                res|=(1L<<i);
         }
 		return res;
-	}*/
+	}
+*/
 	
 	protected int unsignedBytesToInt(byte[] buf) {
 		int i = 0;
