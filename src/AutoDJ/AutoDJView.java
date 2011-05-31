@@ -35,6 +35,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -42,6 +43,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 
 /**
@@ -67,7 +69,7 @@ public class AutoDJView extends Observable implements Observer {
 			/**
 			 * A SongJList displaying the current playlist.
 			 */
-			private SongJList playlistList;
+			private JList playlistList;
 			/**
 			 * A text field to enter a search string for the song library.
 			 */
@@ -75,7 +77,7 @@ public class AutoDJView extends Observable implements Observer {
 			/**
 			 * A SongJList displaying the current library search results.
 			 */
-			private SongJList libraryList;
+			private JList libraryList;
 	
 		/**
 		 * The second panel which displays the cover art, if available.
@@ -134,7 +136,7 @@ public class AutoDJView extends Observable implements Observer {
 		playerPanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		
-		JToggleButton playButton = new JToggleButton("Play/Pause");
+		JToggleButton playButton = new JToggleButton(new ImageIcon("img/media-playback-start.png"));
 		c.fill=GridBagConstraints.NONE;
 		c.weightx=0.0;
 		c.ipadx=10;
@@ -152,7 +154,7 @@ public class AutoDJView extends Observable implements Observer {
 		c.gridy=0;
 		playerPanel.add(progressBar, c);
 		
-		JButton nextSongButton = new JButton("Next Song");
+		JButton nextSongButton = new JButton(new ImageIcon("img/media-seek-forward.png"));
 		c.fill=GridBagConstraints.NONE;
 		c.weightx=0.0;
 		c.ipadx=10;
@@ -168,16 +170,17 @@ public class AutoDJView extends Observable implements Observer {
 	private void createMainPanel() {
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new GridBagLayout());
-		GridBagConstraints leftConstraints = new GridBagConstraints();
-		GridBagConstraints rightConstraints = new GridBagConstraints();
 
+		// left: playlist
+		GridBagConstraints leftConstraints = new GridBagConstraints();
 		JLabel playListLabel = new JLabel("Playlist");
 		leftConstraints.gridx = 0;
 		leftConstraints.gridy = 0;
 		leftConstraints.insets=new Insets(5,5,5,5);
 		mainPanel.add(playListLabel, leftConstraints);
-		playlistList = new SongJList();
+		playlistList = new JList();
 		playlistList.setCellRenderer(new SongListRenderer());
+		playlistList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		JScrollPane playlistScrollpane = new JScrollPane (playlistList);
 		playlistScrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		leftConstraints.fill=GridBagConstraints.BOTH;
@@ -188,6 +191,58 @@ public class AutoDJView extends Observable implements Observer {
 		playlistList.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		mainPanel.add(playlistScrollpane, leftConstraints);
 		
+		// center: playlist control
+		JPanel playListControlPanel = new JPanel();
+		// buttons arranged in a gridbag-layout
+		playListControlPanel.setLayout(new GridBagLayout());
+		GridBagConstraints controlConstraints = new GridBagConstraints();
+		JButton addButton = new JButton(new ImageIcon("img/go-previous.png"));
+		addButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setChanged();
+				notifyObservers(new ObserverMessage(ObserverMessage.ADD_SONG_TO_PLAYLIST));
+			}
+		});
+		JButton removeButton = new JButton(new ImageIcon("img/go-next.png"));
+		removeButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setChanged();
+				notifyObservers(new ObserverMessage(ObserverMessage.REMOVE_SONG_FROM_PLAYLIST));
+			}
+		});
+		JButton downButton = new JButton(new ImageIcon("img/go-down.png"));
+		downButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setChanged();
+				notifyObservers(new ObserverMessage(ObserverMessage.MOVE_SONG_DOWN_IN_PLAYLIST));
+			}
+		});
+		JButton upButton = new JButton(new ImageIcon("img/go-up.png"));
+		upButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setChanged();
+				notifyObservers(new ObserverMessage(ObserverMessage.MOVE_SONG_UP_IN_PLAYLIST));
+			}
+		});
+		controlConstraints.gridx = 1;
+		controlConstraints.gridy = 0;
+		playListControlPanel.add(upButton, controlConstraints);
+		controlConstraints.gridx = 0;
+		controlConstraints.gridy = 1;
+		playListControlPanel.add(addButton, controlConstraints);
+		controlConstraints.gridx = 2;
+		playListControlPanel.add(removeButton, controlConstraints);
+		controlConstraints.gridx = 1;
+		controlConstraints.gridy = 2;
+		playListControlPanel.add(downButton, controlConstraints);
+		GridBagConstraints centerConstraints = new GridBagConstraints();
+		centerConstraints.gridx = 1;
+		centerConstraints.gridy = 1;
+		centerConstraints.gridheight = 2;
+		mainPanel.add(playListControlPanel, centerConstraints);
+			
+		// right: song library
+		GridBagConstraints rightConstraints = new GridBagConstraints();
 		JLabel libraryLabel = new JLabel("Song Library");
 		rightConstraints.gridx = 2;
 		rightConstraints.gridy = 0;
@@ -204,7 +259,7 @@ public class AutoDJView extends Observable implements Observer {
 		rightConstraints.weightx = 0.5;
 		rightConstraints.gridy = 1;
 		mainPanel.add(librarySearchField, rightConstraints);
-		libraryList = new SongJList();
+		libraryList = new JList();
 		libraryList.setCellRenderer(new SongListRenderer());
 		JScrollPane libraryScrollpane = new JScrollPane (libraryList);
 		libraryScrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -319,6 +374,35 @@ public class AutoDJView extends Observable implements Observer {
 	}
 	
 	/**
+	 * Returns the current selected values of the playlist.
+	 * @return the current selected values of the playlist.
+	 */
+	public Song[] getSelectedPlaylistSongs() {
+		return convertObjectArrayToSongArray(playlistList.getSelectedValues());
+	}
+	
+	/**
+	 * Returns the current selected values of the library.
+	 * @return the current selected values of the library.
+	 */
+	public Song[] getSelectedLibrarySongs() {
+		return convertObjectArrayToSongArray(libraryList.getSelectedValues());
+	}
+	
+	/**
+	 * Convert an Object-array to a Song-array
+	 * @param objects[] the array of Objects to be converted
+	 * @return a Song-array
+	 */
+	private Song[] convertObjectArrayToSongArray(Object[] objects) {
+		Song[] songs = new Song[objects.length];
+		for (int i=0; i<objects.length; i++) {
+			songs[i] = (Song) objects[i];
+		}
+		return songs;
+	}
+	
+	/**
 	 * Updates this object if changes in an other object occurs. At the moment
 	 * this class is notified only if something in AutoDJModel has changed,
 	 * e.g. a new log message was created, the playlist changed, etc.
@@ -338,6 +422,9 @@ public class AutoDJView extends Observable implements Observer {
 			} else if (message.getMessage()==ObserverMessage.LIBRARY_CHANGED) {
 				// display new content
 				libraryList.setListData(((AutoDJModel) model).getSongLibrary());
+			} else if (message.getMessage()==ObserverMessage.PLAYLIST_CHANGED) {
+				// display new content
+				playlistList.setListData(((AutoDJModel) model).getPlaylist());
 			}
 		}
 	}

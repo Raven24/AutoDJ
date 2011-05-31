@@ -31,6 +31,8 @@ package AutoDJ;
  */
 
 public class ObserverMessage {
+	// 1 to 99: GUI event
+	// 100+: Model changed
 	/**
 	 * The integer value representing "start playing"
 	 */
@@ -44,6 +46,37 @@ public class ObserverMessage {
 	 * changed MP3 files and update the database accordingly"
 	 */
 	public static final int RESCAN_LIBRARY = 3;
+
+	/**
+	 * The integer value representing a change in the
+	 * search text for the song library.
+	 */
+	public static final int SEARCHTEXT_CHANGED = 4;
+	
+	/**
+	 * The integer value representing a change in the
+	 * playlist: A song was added.
+	 */
+	public static final int ADD_SONG_TO_PLAYLIST = 5;
+	
+	/**
+	 * The integer value representing a change in the
+	 * playlist: A song was removed.
+	 */
+	public static final int REMOVE_SONG_FROM_PLAYLIST = 6;
+	
+	/**
+	 * The integer value representing a change in the
+	 * playlist: A song was moved up.
+	 */
+	public static final int MOVE_SONG_UP_IN_PLAYLIST = 7;
+	
+	/**
+	 * The integer value representing a change in the
+	 * playlist: A song was moved down.
+	 */
+	public static final int MOVE_SONG_DOWN_IN_PLAYLIST = 8;
+
 	
 	/**
 	 * The integer value representing "player log was changed,
@@ -59,9 +92,10 @@ public class ObserverMessage {
 	
 	/**
 	 * The integer value representing a change in the
-	 * search text for the song library.
+	 * playlist.
 	 */
-	public static final int SEARCHTEXT_CHANGED = 103;
+	public static final int PLAYLIST_CHANGED = 103;
+	
 	/**
 	 * The integer value which stores the message.
 	 */

@@ -20,6 +20,7 @@
 
 package AutoDJ;
 
+import java.util.Arrays;
 import java.util.Observable;
 import java.util.Vector;
 
@@ -56,7 +57,7 @@ public class AutoDJModel extends Observable {
 	 * Creates a new AutoDJModel object.
 	 */
 	public AutoDJModel () {
-		playlist = null;
+		playlist = new Vector<Song>();
 		songLibrary = null;
 		logtext = "";
 	}
@@ -97,6 +98,36 @@ public class AutoDJModel extends Observable {
 		notifyObservers(new ObserverMessage(ObserverMessage.LIBRARY_CHANGED));
 	}
 
+	/**
+	 * Adds songs to the playlist.
+	 * @param songs The songs to add to the playlist
+	 */
+	public void addToPlaylist(Song[] songs) {
+		playlist.addAll(Arrays.asList(songs));
+		setChanged();
+		notifyObservers(new ObserverMessage(ObserverMessage.PLAYLIST_CHANGED));
+	}
+	
+	/**
+	 * Adds a song to the playlist.
+	 * @param songs The songs to add to the playlist
+	 */
+	public void addToPlaylist(Song song) {
+		playlist.add(song);
+		setChanged();
+		notifyObservers(new ObserverMessage(ObserverMessage.PLAYLIST_CHANGED));
+	}
+	
+	/**
+	 * Removes songs from the playlist.
+	 * @param songs The songs to remove from the playlist
+	 */
+	public void removeFromPlaylist(Song[] songs) {
+		playlist.removeAll(Arrays.asList(songs));
+		setChanged();
+		notifyObservers(new ObserverMessage(ObserverMessage.PLAYLIST_CHANGED));
+	}
+	
 	/**
 	 * Sets the current playlist.
 	 * @param playlist A Vector of Song objects.

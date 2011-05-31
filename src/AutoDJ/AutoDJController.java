@@ -183,6 +183,20 @@ public class AutoDJController implements Observer {
 				rescanDatabase();
 			} else if (message.getMessage()==ObserverMessage.SEARCHTEXT_CHANGED) {
 				filterSongLibrary(((AutoDJView) view).getSearchText());
+			} else if (message.getMessage()==ObserverMessage.ADD_SONG_TO_PLAYLIST) {
+				Song[] selectedSongs=((AutoDJView) view).getSelectedLibrarySongs();
+				Vector<Song> playlistSongs=model.getPlaylist();
+				for (int i=0; i<selectedSongs.length; i++) {
+					if (!playlistSongs.contains(selectedSongs[i])) {
+						model.addToPlaylist(selectedSongs[i]);
+					} else {
+						model.setLogtext("Song " + selectedSongs[i].getArtist() +
+								" - " + selectedSongs[i].getTitle() + " not added" +
+								" to playlist, because it already contains it.");
+					}
+				}
+			} else if (message.getMessage()==ObserverMessage.REMOVE_SONG_FROM_PLAYLIST) {
+				model.removeFromPlaylist(((AutoDJView) view).getSelectedPlaylistSongs());
 			}
 		} else {
 			System.out.println ("Unknown Observer-Message caught!");
