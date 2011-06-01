@@ -33,6 +33,7 @@ import javax.swing.ListCellRenderer;
  * @see AutoDJView
  */
 
+@SuppressWarnings("serial")
 public class SongListRenderer extends JLabel implements ListCellRenderer {
 	
 	/**
@@ -56,10 +57,10 @@ public class SongListRenderer extends JLabel implements ListCellRenderer {
 		}		
 		
 		Song song = (Song) value;
-		String label = "";
-		label = label + song.getArtist() + " - " + song.getTitle();
-		label = label + " (" + song.getAlbum() + " [" + song.getTrackno() + " ], ";
-		label = label + song.getYear() + ")";
+		String label = "<html>";
+		label = label + "<b>" + song.getArtist() + " - " + song.getTitle() + "</b>";
+		label = label + ": " + song.getAlbum() + ", #" + song.getTrackno() + ", ";
+		label = label + song.getYear() + " (" + song.getGenre() + ")</html>";
 		
 		this.setText(label);
 		return this;
