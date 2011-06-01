@@ -1,6 +1,12 @@
 package AutoDJ.tests;
 
+import java.awt.image.BufferedImage;
 import java.io.*;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
 import AutoDJ.*;
 import AutoDJ.audioPlayer.*;
 import AutoDJ.metaReader.AudioFileIndexer;
@@ -22,7 +28,7 @@ import AutoDJ.prefs.Settings;
  * -p/--play
  * 		takes an _absolute_ filename and tries to play it
  * -s/--settings
- * 		tries to write and then read settings to the user's confif file
+ * 		tries to write and then read settings to the user's config file
  * 
  * @author Florian Staudacher
  *
@@ -31,7 +37,8 @@ import AutoDJ.prefs.Settings;
 
 public class UnitTests {
 
-    	static PlayerThread t;
+    static PlayerThread t;
+    static BufferedImage cover;
     	
 	/**
 	 * @param args
@@ -80,6 +87,16 @@ public class UnitTests {
 						AudioFileIndexer audio = AudioFileIndexer.initIndexer(dir.getAbsolutePath()+"/"+entries[i]);
 						audio.getFileInfo();
 						out(audio.toString());
+						/*cover = audio.getCover();
+						if( cover != null ) {
+							out("drawing image");
+							JFrame frame = new JFrame("TEST");
+							JLabel label = new JLabel(new ImageIcon(cover));
+							frame.add(label);
+							frame.pack();
+							frame.setVisible(true);
+							
+						}*/
 					}
 					
 				}

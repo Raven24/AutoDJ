@@ -4,6 +4,8 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.io.*;
 
+import javax.imageio.ImageIO;
+
 
 /**
  * class Mp3Indexer
@@ -104,6 +106,7 @@ public class Mp3Indexer extends AudioFileIndexer {
 			length = buff.getInt();
 			buff.get(); buff.get(); // skip three bytes
 		} catch (Exception e) {
+			e.printStackTrace();
 			return false;
 		}
 				
@@ -114,7 +117,42 @@ public class Mp3Indexer extends AudioFileIndexer {
 		if(ident.startsWith("ID3")) {
 			//ignore
 		} else if ("AENC".equals(ident)) { skipBytes(length);
-		} else if ("APIC".equals(ident)) { skipBytes(length);
+		} else if ("APIC".equals(ident)) { // cover art
+			byte[] coverTag = getID3v2Raw(length);
+			
+			int nullCnt = 0, i = 0;
+			String mime = "";  // image mimetype
+			String desc = "";  // image text description
+			
+			for(i = 0; i < length; i++) {
+				if( coverTag[i] == 0x00 ) {
+					nullCnt++;
+					
+					if (nullCnt > 2) break;
+					continue;
+				}
+				
+				switch(nullCnt) {
+					case 1: 
+						mime += new String(coverTag, i, 1);
+						break;
+					case 2: 
+						desc += new String(coverTag, i, 1);
+						break;
+					default:
+						System.out.println(new String(coverTag, i, 1));
+						break;
+				}
+				
+			}
+			desc = desc.substring(1); // cut off the first byte
+			i++; // count i+1, now we're at the image data
+			
+			try {
+				cover = ImageIO.read(new ByteArrayInputStream(coverTag, i, length-i));
+			} catch( Exception e) {
+				e.printStackTrace();
+			}
 			
 		} else if ("COMM".equals(ident)) { // comments
 			comment = getID3v2Text(length);
@@ -153,6 +191,7 @@ public class Mp3Indexer extends AudioFileIndexer {
 		} else if ("TCON".equals(ident)) {
 			genre = getID3v2Text(length);
 		} else if ("TDAT".equals(ident)) { skipBytes(length);
+		} else if ("TDRC".equals(ident)) { skipBytes(length);
 		} else if ("TDLY".equals(ident)) { skipBytes(length);
 		} else if ("TENC".equals(ident)) { skipBytes(length);
 		} else if ("TEXT".equals(ident)) { skipBytes(length);
@@ -227,6 +266,23 @@ public class Mp3Indexer extends AudioFileIndexer {
 			//e.printStackTrace();
 		}
 		return "";
+	}
+	
+	/**
+	 * get the raw bytes from the tag value
+	 * 
+	 * @param int size
+	 * @return byte[]
+	 */
+	protected byte[] getID3v2Raw(int size) {
+		byte[] data = new byte[size];
+		try{
+			buff.get(data);
+			return data;
+		} catch (BufferUnderflowException e) {
+			//e.printStackTrace();
+		}
+		return new byte[0];	
 	}
 	
 	/**
@@ -428,4 +484,5 @@ public class Mp3Indexer extends AudioFileIndexer {
 	public String toString() {
 		return "Mp3-File: "+super.toString();
 	}
+	
 }

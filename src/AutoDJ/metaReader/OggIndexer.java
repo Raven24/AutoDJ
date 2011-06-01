@@ -1,7 +1,10 @@
 package AutoDJ.metaReader;
 
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.HashMap;
+
+import javax.imageio.ImageIO;
 
 
 /**
@@ -53,6 +56,7 @@ public class OggIndexer extends AudioFileIndexer {
 		year	= vorbisComments.get("date");
 		trackno = vorbisComments.get("tracknumber");
 		genre	= vorbisComments.get("genre");
+		//cover   = vorbisComments.get("metadata_block_picture");
 	}
 	
 	/**
@@ -128,4 +132,5 @@ public class OggIndexer extends AudioFileIndexer {
 			totalLength += l;
 		}
 	}
+	
 }
