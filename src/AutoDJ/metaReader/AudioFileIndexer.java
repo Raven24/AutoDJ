@@ -1,6 +1,7 @@
 package AutoDJ.metaReader;
 
 import java.nio.ByteBuffer;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.lang.Exception;
@@ -30,6 +31,7 @@ public abstract class AudioFileIndexer {
 					 genre,
 					 trackno,
 					 year;
+	BufferedImage	 cover;
 	// TODO: album cover!
 	protected long 	 lastModified,	  // milliseconds since 1970-01-01 00:00 
 					 length;		  // filesize in bytes
@@ -90,7 +92,9 @@ public abstract class AudioFileIndexer {
 	 * @return String output
 	 */
 	public String toString() {
-		return title+" by "+artist +"\n\t"+filePath;
+		return  getTitle() +" by "+ getArtist() +" ("+getYear()+")\n\t"+
+				 "#"+getTrackno()+" on "+getAlbum() +"\n\t"+
+				filePath+"\n\t";
 	}
 	
 	/**
@@ -144,4 +148,66 @@ public abstract class AudioFileIndexer {
 	    return  (v >>> 24) | (v << 24) | 
 	      ((v << 8) & 0x00FF0000) | ((v >> 8) & 0x0000FF00);
 	}
+
+	/**
+	 * @return the title
+	 */
+	public String getTitle() {
+		if( title != null) return title;
+		
+		return "Unknown Title";
+	}
+
+	/**
+	 * @return the artist
+	 */
+	public String getArtist() {
+		if( artist != null ) return artist;
+		
+		return "Unknown Artist";
+	}
+
+	/**
+	 * @return the album
+	 */
+	public String getAlbum() {
+		if( album != null ) return album;
+		
+		return "Unknown Album";
+	}
+
+	/**
+	 * @return the genre
+	 */
+	public String getGenre() {
+		if( genre != null ) return genre;
+		
+		return "Unknown Genre";
+	}
+
+	/**
+	 * @return the trackno
+	 */
+	public int getTrackno() {
+		if( trackno == null || trackno.isEmpty() ) return 0;
+		
+		return Integer.parseInt(trackno);
+	}
+
+	/**
+	 * @return the year
+	 */
+	public int getYear() {
+		if( year == null || year.isEmpty() ) return 0;
+		
+		return Integer.parseInt(year);
+	}
+
+	/**
+	 * @return the cover
+	 */
+	public BufferedImage getCover() {		
+		return cover;
+	}
+	
 }
