@@ -20,8 +20,10 @@
 
 package AutoDJ;
  
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,6 +32,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
+
+import javax.imageio.ImageIO;
 
 import org.jaudiotagger.tag.datatype.Artwork;
 
@@ -140,7 +144,7 @@ public class SongDatabase {
 			statement.setString(2, song.getTitle());
 			statement.setInt(3, song.getTrackno());
 			statement.setString(4, song.getAlbum());
-			statement.setBinaryStream(5, new ByteArrayInputStream(song.getCover().getBinaryData()));
+			statement.setBinaryStream(5, new ByteArrayInputStream( song.getCoverBytes() ));
 			statement.setInt(6, song.getYear());
 			statement.setString(7, song.getGenre());
 			statement.setString(8, song.getFile().getAbsolutePath());
@@ -176,12 +180,17 @@ public class SongDatabase {
 			while(rs.next()) {
 				int id = rs.getInt("id");
 				String artist = rs.getString("artist");
-				String title = rs.getString("title");
-				int trackno = rs.getInt("trackno");
-				String album = rs.getString("album");
-				Artwork cover = new Artwork();
-				Blob coverBlob = rs.getBlob("cover");
-				cover.setBinaryData(coverBlob.getBytes((long) 1, (int) coverBlob.length()));
+				String title        = rs.getString("title");
+				int trackno         = rs.getInt("trackno");
+				String album        = rs.getString("album");
+				Blob coverBlob      = rs.getBlob("cover");
+				BufferedImage cover = null;
+				try {
+					cover = ImageIO.read(new ByteArrayInputStream(coverBlob.getBytes((long) 1, (int) coverBlob.length())));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				int year = rs.getInt("year");
 				String genre = rs.getString("genre");
 				File filename = new File (rs.getString("filename"));
@@ -216,7 +225,7 @@ public class SongDatabase {
 			statement.setString(2, newSong.getTitle());
 			statement.setInt(3, newSong.getTrackno());
 			statement.setString(4, newSong.getAlbum());
-			statement.setBinaryStream(5, new ByteArrayInputStream(newSong.getCover().getBinaryData()));
+			statement.setBinaryStream(5, new ByteArrayInputStream(newSong.getCoverBytes()));
 			statement.setInt(6, newSong.getYear());
 			statement.setString(7, newSong.getFile().getAbsolutePath());
 			statement.setString(8, newSong.getMD5sum());

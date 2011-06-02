@@ -87,7 +87,7 @@ public class UnitTests {
 						AudioFileIndexer audio = AudioFileIndexer.initIndexer(dir.getAbsolutePath()+"/"+entries[i]);
 						audio.getFileInfo();
 						out(audio.toString());
-						/*cover = audio.getCover();
+						cover = audio.getCover();
 						if( cover != null ) {
 							out("drawing image");
 							JFrame frame = new JFrame("TEST");
@@ -96,7 +96,7 @@ public class UnitTests {
 							frame.pack();
 							frame.setVisible(true);
 							
-						}*/
+						}
 					}
 					
 				}
