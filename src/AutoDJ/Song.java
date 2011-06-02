@@ -21,6 +21,8 @@
 package AutoDJ;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,6 +35,8 @@ import org.jaudiotagger.audio.mp3.MP3File;
 import org.jaudiotagger.tag.datatype.Artwork;
 import org.jaudiotagger.tag.id3.AbstractID3v2Tag;
 import org.jaudiotagger.tag.id3.ID3v24Frames;
+
+import AutoDJ.metaReader.AudioFileIndexer;
 
 /**
  * Song is a class which represents a single song.
@@ -63,7 +67,7 @@ public class Song {
 	/**
 	 * The cover art of this song.
 	 */
-	private Artwork cover;
+	private BufferedImage cover;
 	/**
 	 * The year song was released in.
 	 */
@@ -98,19 +102,17 @@ public class Song {
 		
 		// get the ID3 tag information
 		try {
-			MP3File mp3File = new MP3File (filename);
-			if (mp3File.hasID3v2Tag()) {
-				AbstractID3v2Tag tag = mp3File.getID3v2TagAsv24();
-				artist = tag.getFirst(ID3v24Frames.FRAME_ID_ARTIST);
-				title = tag.getFirst(ID3v24Frames.FRAME_ID_TITLE);
-				album = tag.getFirst(ID3v24Frames.FRAME_ID_ALBUM);
-				cover = tag.getFirstArtwork();
-				year = Integer.parseInt(tag.getFirst(ID3v24Frames.FRAME_ID_YEAR));
-				trackno = Integer.parseInt(tag.getFirst(ID3v24Frames.FRAME_ID_TRACK));
-				genre = tag.getFirst(ID3v24Frames.FRAME_ID_GENRE); 
-			} else {
-				throw new RuntimeException ("File "+this.filename.getAbsolutePath()+" has no ID3v2 tag!");
-			}
+			AudioFileIndexer audioMetadata = AudioFileIndexer.initIndexer(filename.getAbsolutePath());
+			audioMetadata.getFileInfo();
+			
+			artist  = audioMetadata.getArtist();
+			title   = audioMetadata.getTitle();
+			album   = audioMetadata.getAlbum();
+			cover   = audioMetadata.getCover();
+			year    = audioMetadata.getYear();
+			trackno = audioMetadata.getTrackno();
+			genre   = audioMetadata.getGenre(); 
+	
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -130,17 +132,17 @@ public class Song {
 	 * @param md5sum The md5sum of this MP3 file.
 	 */
 	public Song(int id, String artist, String title, int trackno, String album,
-			Artwork cover, int year, String genre, File filename, String md5sum) {
-		this.id=id;
-		this.artist=artist;
-		this.title=title;
-		this.trackno=trackno;
-		this.album=album;
-		this.cover=cover;
-		this.year=year;
-		this.genre=genre;
-		this.filename=filename;
-		this.md5sum=md5sum;
+			BufferedImage cover, int year, String genre, File filename, String md5sum) {
+		this.id      = id;
+		this.artist  = artist;
+		this.title   = title;
+		this.trackno = trackno;
+		this.album   = album;
+		this.cover   = cover;
+		this.year    = year;
+		this.genre   = genre;
+		this.filename= filename;
+		this.md5sum  = md5sum;
 	}
 	
 	/**
@@ -215,17 +217,21 @@ public class Song {
 	 * Returns the cover art of this song.
 	 * @return The cover art of this song.
 	 */
-	public Artwork getCover() {
+	public BufferedImage getCover() {
 		return cover;
 	}
-
+	
 	/**
-	 * Returns the cover art of this song.
-	 * @return The cover art of this song.
-	 * @throws IOException 
+	 * returns a byte array containing the binary data from the album cover
+	 * 
+	 * @return byte[] cover image
 	 */
-	public BufferedImage getCoverAsBufferedImage() throws IOException {
-		return cover.getImage();
+	public byte[] getCoverBytes() {
+		if( getCover() == null ) return new byte[0];
+		
+		WritableRaster raster = getCover().getRaster();
+		DataBufferByte buff = (DataBufferByte) raster.getDataBuffer();
+		return buff.getData();
 	}
 
 	/**
