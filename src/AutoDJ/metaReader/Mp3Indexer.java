@@ -100,11 +100,11 @@ public class Mp3Indexer extends AudioFileIndexer {
 	protected boolean readID3v2Tag() {
 		byte[] frame = new byte[4];
 		int length;
-	
+		
 		try {
 			buff.get(frame);
 			length = buff.getInt();
-			buff.get(); buff.get(); // skip three bytes
+			buff.get(); buff.get(); // skip flags
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -258,12 +258,37 @@ public class Mp3Indexer extends AudioFileIndexer {
 	 * @return String value
 	 */
 	protected String getID3v2Text(int size) {
-		byte[] data = new byte[size];
+		byte enc;
+		byte[] data = new byte[size-1];
+		String encoding;
+		
+		// find out the text encoding
+		enc = buff.get();
+		
+		switch( enc ) {
+			case 0x01:
+				// UTF-16 with BOM
+				encoding = "UTF-16";
+				break;
+			case 0x02:
+				// UTF-16 without BOM
+				encoding = "UTF-16";
+				break;
+			case 0x03:
+				encoding = "UTF-8";
+				break;
+			default: 
+				// If nothing else is said, strings, including numeric strings and URLs, 
+				// are represented as ISO-8859-1 characters [id3v2.4 spec]
+				encoding = "ISO-8859-1";
+				break;
+		}
+				
 		try{
 			buff.get(data);
-			return new String(data).substring(1);
-		} catch (BufferUnderflowException e) {
-			//e.printStackTrace();
+			return new String(data, encoding);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return "";
 	}
