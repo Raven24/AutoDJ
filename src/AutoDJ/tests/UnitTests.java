@@ -84,6 +84,7 @@ public class UnitTests {
 					};
 					String[] entries = dir.list(filter);
 					for (int i = 0; i < entries.length; i++) {
+						out("Now reading: "+entries[i]);
 						AudioFileIndexer audio = AudioFileIndexer.initIndexer(dir.getAbsolutePath()+"/"+entries[i]);
 						audio.getFileInfo();
 						out(audio.toString());
