@@ -2,6 +2,7 @@ package AutoDJ.metaReader;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.io.*;
 
 import javax.imageio.ImageIO;
@@ -122,30 +123,45 @@ public class Mp3Indexer extends AudioFileIndexer {
 			
 			int nullCnt = 0, i = 0;
 			String mime = "";  // image mimetype
+			ArrayList<Byte> descBytes = new ArrayList<Byte>();
 			String desc = "";  // image text description
 			
-			for(i = 0; i < length; i++) {
+			String encoding = getTextEncoding(coverTag[0]);
+			
+			for(i = 1; i < length; i++) {				
 				if( coverTag[i] == 0x00 ) {
 					nullCnt++;
 					
-					if (nullCnt > 2) break;
+					// UTF-16 is terminated by two NULL bytes
+					if (nullCnt > 2 && !encoding.equalsIgnoreCase("UTF-16")) break;
+					if (nullCnt > 3 && encoding.equalsIgnoreCase("UTF-16")) break;
 					continue;
 				}
-				
+								
 				switch(nullCnt) {
 					case 1: 
 						mime += new String(coverTag, i, 1);
 						break;
 					case 2: 
-						desc += new String(coverTag, i, 1);
+						descBytes.add(coverTag[i]);
 						break;
 					default:
-						System.out.println(new String(coverTag, i, 1));
+						//System.out.println(new String(coverTag, i, 1));
 						break;
 				}
 				
 			}
-			desc = desc.substring(1); // cut off the first byte
+			
+			byte[] descArr = new byte[descBytes.size()];
+			for(int j = 0; j < descBytes.size(); j++) {
+				descArr[j] = descBytes.get(j);
+			}
+			try {
+				desc = new String(descArr, encoding);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			
 			i++; // count i+1, now we're at the image data
 			
 			try {
@@ -258,32 +274,12 @@ public class Mp3Indexer extends AudioFileIndexer {
 	 * @return String value
 	 */
 	protected String getID3v2Text(int size) {
-		byte enc;
 		byte[] data = new byte[size-1];
 		String encoding;
 		
 		// find out the text encoding
-		enc = buff.get();
+		encoding = getTextEncoding(buff.get());
 		
-		switch( enc ) {
-			case 0x01:
-				// UTF-16 with BOM
-				encoding = "UTF-16";
-				break;
-			case 0x02:
-				// UTF-16 without BOM
-				encoding = "UTF-16";
-				break;
-			case 0x03:
-				encoding = "UTF-8";
-				break;
-			default: 
-				// If nothing else is said, strings, including numeric strings and URLs, 
-				// are represented as ISO-8859-1 characters [id3v2.4 spec]
-				encoding = "ISO-8859-1";
-				break;
-		}
-				
 		try{
 			buff.get(data);
 			return new String(data, encoding);
@@ -308,6 +304,37 @@ public class Mp3Indexer extends AudioFileIndexer {
 			//e.printStackTrace();
 		}
 		return new byte[0];	
+	}
+	
+	/**
+	 * return the text encoding for a text frame
+	 * 
+	 * @param byte the byte that specifies the encoding
+	 * @return String the encoding we've decided
+	 */
+	protected String getTextEncoding(byte enc) {
+		String encoding;
+		
+		switch( enc ) {
+			case 0x01:
+				// UTF-16 with BOM
+				encoding = "UTF-16";
+				break;
+			case 0x02:
+				// UTF-16 without BOM
+				encoding = "UTF-16";
+				break;
+			case 0x03:
+				encoding = "UTF-8";
+				break;
+			default: 
+				// If nothing else is said, strings, including numeric strings and URLs, 
+				// are represented as ISO-8859-1 characters [id3v2.4 spec]
+				encoding = "ISO-8859-1";
+				break;
+		}
+		
+		return encoding;
 	}
 	
 	/**
