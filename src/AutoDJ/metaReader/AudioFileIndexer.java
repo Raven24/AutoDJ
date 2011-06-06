@@ -31,8 +31,8 @@ public abstract class AudioFileIndexer {
 					 genre,
 					 trackno,
 					 year;
-	BufferedImage	 cover;
-	// TODO: album cover!
+	BufferedImage	 cover; // TODO: ogg vorbis album cover!
+	
 	protected long 	 lastModified,	  // milliseconds since 1970-01-01 00:00 
 					 length;		  // filesize in bytes
 	
@@ -77,9 +77,11 @@ public abstract class AudioFileIndexer {
 	public static AudioFileIndexer initIndexer(String fileName) {
 		String ext = fileName.substring(fileName.length()-3);
 				
-		if(ext.equalsIgnoreCase("mp3")) return new Mp3Indexer(fileName);
+		if(ext.equalsIgnoreCase("mp3")) 
+			return new Mp3Indexer(fileName);
 		if(ext.equalsIgnoreCase("ogg") ||
-		   ext.equalsIgnoreCase("oga")) return new OggIndexer(fileName);
+		   ext.equalsIgnoreCase("oga")) 
+			return new OggIndexer(fileName);
 		
 		System.out.println("unknown filetype");
 		return null;
