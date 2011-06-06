@@ -2,9 +2,12 @@ package AutoDJ.metaReader;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
+
+import org.apache.commons.codec.binary.Base64;
 
 
 /**
@@ -56,7 +59,7 @@ public class OggIndexer extends AudioFileIndexer {
 		year	= vorbisComments.get("date");
 		trackno = vorbisComments.get("tracknumber");
 		genre	= vorbisComments.get("genre");
-		//cover   = vorbisComments.get("metadata_block_picture");
+		cover   = readAlbumImage(vorbisComments.get("metadata_block_picture"));
 	}
 	
 	/**
@@ -81,6 +84,7 @@ public class OggIndexer extends AudioFileIndexer {
 			int readLength = getIntFromBuff();
 			byte[] content = new byte[readLength];
 			raf.read(content);
+			System.out.println(new String(content));
 			addToMap(content);
 		}			
 	}
@@ -131,6 +135,59 @@ public class OggIndexer extends AudioFileIndexer {
 			l=tmp[0]&0xff;
 			totalLength += l;
 		}
+	}
+	
+	/**
+	 * Extracts the Image from a FLAC picture structure
+	 * http://flac.sourceforge.net/format.html#metadata_block_picture
+	 * Expects a base64 encoded string
+	 * 
+	 * @param String pictureBlock (base64)
+	 * @return BufferedImage
+	 */
+	BufferedImage readAlbumImage(String pictureBlock) {
+		if( pictureBlock == null || pictureBlock.isEmpty() ) 
+			return null;
+		
+		byte[] pictureBytes = Base64.decodeBase64(pictureBlock);
+		BufferedImage img = null;
+		
+		String mimeString = "", description = "";
+		ByteBuffer picBuff = ByteBuffer.allocate(pictureBytes.length);
+		picBuff.put(pictureBytes);
+		picBuff.rewind();
+		
+		int picType = picBuff.getInt(); // not interesting, discard
+		
+		int mimeStrLength = picBuff.getInt();
+		byte[] mimeBytes = new byte[mimeStrLength];
+		picBuff.get(mimeBytes);
+		mimeString = new String(mimeBytes);
+		
+		int descStrLength = picBuff.getInt();
+		byte[] descBytes = new byte[descStrLength];
+		picBuff.get(descBytes);
+		try {
+			description = new String(descBytes, "UTF-8");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		int picWidth  = picBuff.getInt();
+		int picHeight = picBuff.getInt();
+		int colDepth  = picBuff.getInt();
+		int idxColors = picBuff.getInt();
+		
+		int picDataLength = picBuff.getInt();
+		byte[] picBytes = new byte[picDataLength];
+		picBuff.get(picBytes);
+		try {
+			img = ImageIO.read(new ByteArrayInputStream(picBytes));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return img;
 	}
 	
 }
