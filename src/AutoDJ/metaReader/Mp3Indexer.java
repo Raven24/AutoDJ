@@ -18,7 +18,7 @@ import javax.imageio.ImageIO;
  */
 public class Mp3Indexer extends AudioFileIndexer {
 
-	protected int tagSize = 128;	// size of an ID3 tag
+	protected int tagSize = 128;	// size of an ID3v1 tag
 	protected int version = 0;
 	
 	/**
@@ -55,13 +55,13 @@ public class Mp3Indexer extends AudioFileIndexer {
 	 * (hopefully those tags die a slow and painful death, soon)
 	 */
 	protected void populateMetadataV1() {
-		byte[] tag = new byte[3];
-        byte[] tagTitle = new byte[30];
-        byte[] tagArtist = new byte[30];
-        byte[] tagAlbum = new byte[30];
-        byte[] tagYear = new byte[4];
+		byte[] tag        = new byte[3];
+        byte[] tagTitle   = new byte[30];
+        byte[] tagArtist  = new byte[30];
+        byte[] tagAlbum   = new byte[30];
+        byte[] tagYear    = new byte[4];
         byte[] tagComment = new byte[30];
-        byte[] tagGenre = new byte[1];
+        byte[] tagGenre   = new byte[1];
         
         buff.get(tag).get(tagTitle).get(tagArtist).get(tagAlbum)
                         .get(tagYear).get(tagComment).get(tagGenre);
