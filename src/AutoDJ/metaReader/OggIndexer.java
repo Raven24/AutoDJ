@@ -70,9 +70,10 @@ public class OggIndexer extends AudioFileIndexer {
 	public void readFile(String path) throws Exception {
 		audioFile = new File(path);
 		raf = new RandomAccessFile(audioFile, "r");
-		raf.skipBytes(58); // that's the file identification header: not interesting
-		readOggHeader();   // we need to read that in order to know where to start looking
-		raf.skipBytes(7);  // comment header identification: don't need that
+		//raf.skipBytes(58); // that's the file identification header: not interesting
+		readIdentificationHeader();
+		readCommentHeader();   // we need to read that in order to know where to start looking
+		//System.out.println("currently at " + raf.getFilePointer());
 		
 		int venLen = getIntFromBuff();
 		raf.skipBytes(venLen); // skip over the vendor string (always the same)
@@ -106,7 +107,7 @@ public class OggIndexer extends AudioFileIndexer {
 	}
 	
 	/**
-	 * read the vorbis header and do some sanity checks
+	 * read the ogg bitstream package header and do some sanity checks
 	 * 
 	 * @throws Exception
 	 */
@@ -122,10 +123,15 @@ public class OggIndexer extends AudioFileIndexer {
 			// this is not an ogg! let's exit
 			return;
 		}
-		
-		// we skip version, granule position, serial number, sequence number and check sum
+				
+		// we now skip the following:
+		// 	version         = 1 byte,
+		//	headerType      = 1 byte,
+		//	granulePosition = 8 bytes,
+		// 	bitstreamSerial = 4 bytes,
+		//	pageSequenceNum = 4 bytes,
+		//	crcChecksum     = 4 bytes
 		// makes 22 bytes + 4 from "OggS" = 26
-		
 		int pageSegments = (int)header[26];
 		int totalLength = 0;
 		
@@ -135,6 +141,64 @@ public class OggIndexer extends AudioFileIndexer {
 			l=tmp[0]&0xff;
 			totalLength += l;
 		}
+	}
+	
+	/**
+	 * reads the OGG Vorbis identification header
+	 * @throws Exception 
+	 */
+	protected void readIdentificationHeader() throws Exception {
+	    readOggHeader();
+	    
+	    // if this is not an identificationHeader, we can stop going any further
+	    if( raf.read() != 0x01 ) 
+		return;
+	    
+	    byte[] vorbisIdent = new byte[6];
+	    raf.read(vorbisIdent);
+	    
+	    // this needs to be a vorbis header...
+	    if( ! (new String(vorbisIdent).equals("vorbis")) )
+		return;
+	    
+	    // we will now skip the following:
+	    //     vorbisVersion = 4 bytes,
+	    //     audioChannels = 1 byte,
+	    //     sampleRate    = 4 bytes,
+	    //     bitrateMax    = 4 bytes,
+	    //     bitrateNom    = 4 bytes,
+	    //     bitrateMin    = 4 bytes,
+	    //     blocksize0    = 1 byte,
+	    //     blocksize1    = 1 byte
+	    // is 23 bytes of info we don't care about...
+	    raf.skipBytes(23);
+	}	
+	
+	/**
+	 * starts reading the vorbis comment header.
+	 * the actual metadata is parsed later
+	 * @throws Exception 
+	 */
+	protected void readCommentHeader() throws Exception {
+	    readOggHeader();
+	    
+	    byte[] headerTest = new byte[7];
+	    
+	    do {
+		raf.read(headerTest);
+		raf.seek(raf.getFilePointer() - 6);
+		
+	    } while (headerTest[0] != 0x03 && // comment header ident
+		     headerTest[1] != 0x76 && // 'v'
+		     headerTest[2] != 0x6F && // 'o'
+		     headerTest[3] != 0x72 && // 'r'
+		     headerTest[4] != 0x62 && // 'b'
+		     headerTest[4] != 0x69 && // 'i'
+		     headerTest[4] != 0x73    // 's'
+		     );
+	    
+	    // assume, we found the header - skip until after the ident string
+	    raf.skipBytes(6);
 	}
 	
 	/**
