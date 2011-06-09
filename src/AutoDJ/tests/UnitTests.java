@@ -67,6 +67,15 @@ public class UnitTests {
 					AudioFileIndexer audio = AudioFileIndexer.initIndexer(param);
 					audio.getFileInfo();
 					out(audio.toString());
+					cover = audio.getCover();
+					if( cover != null ) {
+						out("drawing image");
+						JFrame frame = new JFrame("TEST");
+						JLabel label = new JLabel(new ImageIcon(cover));
+						frame.add(label);
+						frame.pack();
+						frame.setVisible(true);
+					}
 				}
 				
 			// read a whole directory
@@ -96,7 +105,6 @@ public class UnitTests {
 							frame.add(label);
 							frame.pack();
 							frame.setVisible(true);
-							
 						}
 					}
 					
