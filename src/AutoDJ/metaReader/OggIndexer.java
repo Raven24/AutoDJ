@@ -22,18 +22,32 @@ import org.apache.commons.codec.binary.Base64;
  */
 public class OggIndexer extends AudioFileIndexer {
 	
+    	/**
+    	 *  64k, maximum size of an ogg packet
+    	 */
+    	protected final int two16 = 255*255;
+    	
 	/**
-	 * - ogg container header 				= 27 bytes
-	 * - header package						= 7  bytes
-	 * - vorbis identification header 		= 22 bytes
-	 * - ogg container footer/next header	= 45 bytes
-	 * - header package						= 7  bytes
-	 * -> vorbis comment header 			
-	 * 
-	 * thus the comment header starts somewhere around the 111th byte of the file 
+	 * remember the position the last ogg header started
+	 * (we need this, in case a page spans more than one packet)
 	 */
-	protected int headerStart = 111;
+	protected long headerStart = 0;
+	
+	/**
+	 * this value is true, if the current packet needs to be 
+	 * concatenated with the following packet
+	 * (that also means that the current package has a size of 64kb)
+	 */
+	protected boolean concatNext = false;
+	
+	/**
+	 * keep the total number of vorbis comments to know when to stop
+	 */
 	protected int numberVorbisComments;
+	
+	/**
+	 * store the keys and values of the vorbis comments in a map
+	 */
 	protected HashMap<String, String> vorbisComments;
 
 	/**
@@ -50,7 +64,7 @@ public class OggIndexer extends AudioFileIndexer {
 	}
 	
 	/**
-	 * get the values out of the metadata
+	 * get the values out of the metadata hashmap
 	 */
 	public void populateMetadata() {
 		title 	= vorbisComments.get("title");
@@ -63,17 +77,20 @@ public class OggIndexer extends AudioFileIndexer {
 	}
 	
 	/**
-	 * open the file, jump to the comment header and put it in the buffer
+	 * open the file, jump to the comment header and put it in the buffer,
+	 * then populate the internal hashmap of metadata
 	 * 
 	 * @param String path
 	 */
 	public void readFile(String path) throws Exception {
 		audioFile = new File(path);
 		raf = new RandomAccessFile(audioFile, "r");
-		//raf.skipBytes(58); // that's the file identification header: not interesting
+		
+		// we need to read that in order to know where to start looking
 		readIdentificationHeader();
-		readCommentHeader();   // we need to read that in order to know where to start looking
-		//System.out.println("currently at " + raf.getFilePointer());
+		
+		// skip over the parts we don't care about
+		readCommentHeader();   
 		
 		int venLen = getIntFromBuff();
 		raf.skipBytes(venLen); // skip over the vendor string (always the same)
@@ -82,11 +99,32 @@ public class OggIndexer extends AudioFileIndexer {
 		vorbisComments = new HashMap<String, String> ();
 		
 		for (int i = 0; i < numberVorbisComments; i++) {
-			int readLength = getIntFromBuff();
-			byte[] content = new byte[readLength];
-			raf.read(content);
-			System.out.println(new String(content));
-			addToMap(content);
+			int readLength  = getIntFromBuff();
+			long newFilePos = raf.getFilePointer()+readLength;
+			String content  = "";
+			
+			// take care of pages spanning more than one packet
+			while ( concatNext &&
+			    (newFilePos - headerStart) >= two16 ) {
+			    long packetEnd = headerStart + two16;
+			    int readLengthShort = readLength - ((int)(newFilePos - packetEnd));
+			    
+			    byte[] contentFirst = new byte[readLengthShort];
+			    raf.read(contentFirst);
+			    content += new String(contentFirst);
+			    
+			    concatNext = false;
+			    
+			    // now comes another ogg header...
+			    //System.out.println("looking for new header at "+raf.getFilePointer() );
+			    readOggHeader();   
+			}
+			
+			byte[] contentRest = new byte[readLength];
+			raf.read(contentRest);
+			
+			content += new String(contentRest);
+			addToMap(content.getBytes());
 		}			
 	}
 		
@@ -119,8 +157,8 @@ public class OggIndexer extends AudioFileIndexer {
 		   header[1] == 'g' &&
 		   header[2] == 'g' &&
 		   header[3] == 'S')) {
-			
-			// this is not an ogg! let's exit
+		    	// this is not an ogg! abort...
+			//System.out.println("not an ogg header at " + raf.getFilePointer() );
 			return;
 		}
 				
@@ -132,7 +170,10 @@ public class OggIndexer extends AudioFileIndexer {
 		//	pageSequenceNum = 4 bytes,
 		//	crcChecksum     = 4 bytes
 		// makes 22 bytes + 4 from "OggS" = 26
-		int pageSegments = (int)header[26];
+		int pageSegments = unsignedByteToInt(header[26]);
+		if( pageSegments == 255 ) {
+		    concatNext = true;
+		}
 		int totalLength = 0;
 		
 		for (int i = 0; i < pageSegments; i++) {
@@ -141,6 +182,9 @@ public class OggIndexer extends AudioFileIndexer {
 			l=tmp[0]&0xff;
 			totalLength += l;
 		}
+		
+		// save where this header ended
+		headerStart = raf.getFilePointer();
 	}
 	
 	/**
@@ -184,6 +228,7 @@ public class OggIndexer extends AudioFileIndexer {
 	    
 	    byte[] headerTest = new byte[7];
 	    
+	    // unfortunately we need to look for the vorbis header
 	    do {
 		raf.read(headerTest);
 		raf.seek(raf.getFilePointer() - 6);
@@ -221,13 +266,15 @@ public class OggIndexer extends AudioFileIndexer {
 		picBuff.put(pictureBytes);
 		picBuff.rewind();
 		
-		int picType = picBuff.getInt(); // not interesting, discard
+		/*int picType = */picBuff.getInt(); // not interesting, discard
 		
+		// read the mime type string
 		int mimeStrLength = picBuff.getInt();
 		byte[] mimeBytes = new byte[mimeStrLength];
 		picBuff.get(mimeBytes);
 		mimeString = new String(mimeBytes);
 		
+		// read the string describing the image 
 		int descStrLength = picBuff.getInt();
 		byte[] descBytes = new byte[descStrLength];
 		picBuff.get(descBytes);
@@ -237,11 +284,13 @@ public class OggIndexer extends AudioFileIndexer {
 			e.printStackTrace();
 		}
 		
-		int picWidth  = picBuff.getInt();
-		int picHeight = picBuff.getInt();
-		int colDepth  = picBuff.getInt();
-		int idxColors = picBuff.getInt();
+		// skip over some unnecessary information
+		/*int picWidth  = */picBuff.getInt();
+		/*int picHeight = */picBuff.getInt();
+		/*int colDepth  = */picBuff.getInt();
+		/*int idxColors = */picBuff.getInt();
 		
+		// read the image data
 		int picDataLength = picBuff.getInt();
 		byte[] picBytes = new byte[picDataLength];
 		picBuff.get(picBytes);
