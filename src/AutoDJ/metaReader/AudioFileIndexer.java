@@ -1,3 +1,23 @@
+/**
+ * AudioFileIndexer.java
+ * (C) 2011 Florian Staudacher, Christian Wurst
+ * 
+ * This file is part of AutoDJ.
+ *
+ * AutoDJ is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AutoDJ is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AutoDJ.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package AutoDJ.metaReader;
 
 import java.nio.ByteBuffer;
@@ -18,23 +38,23 @@ import java.lang.Exception;
  */
 public abstract class AudioFileIndexer {
 
-	protected File audioFile;	// contains the file handle to the audio file
+	protected File audioFile;   // contains the file handle to the audio file
 	protected ByteBuffer buff;  // contains the actual metadata
 	protected RandomAccessFile raf;
 	protected String filePath; 
 	
 	// here comes the metadata definition
 	protected String title, 
-					 artist, 
-					 album, 
-					 comment, 
-					 genre,
-					 trackno,
-					 year;
-	BufferedImage	 cover; // TODO: ogg vorbis album cover!
+			 artist, 
+			 album, 
+			 comment, 
+			 genre,
+			 trackno,
+			 year;
+	BufferedImage	 cover; 
 	
-	protected long 	 lastModified,	  // milliseconds since 1970-01-01 00:00 
-					 length;		  // filesize in bytes
+	protected long 	 lastModified,	// milliseconds since 1970-01-01 00:00 
+			 length;	// filesize in bytes
 	
 	/**
 	 * reads the metadata in the audio file and saves it to local member variables
