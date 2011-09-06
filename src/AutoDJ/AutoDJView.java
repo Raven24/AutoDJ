@@ -1,5 +1,5 @@
 /**
- * AutoDJGUI.java
+ * AutoDJView.java
  * (C) 2011 Florian Staudacher, Christian Wurst
  * 
  * This file is part of AutoDJ.

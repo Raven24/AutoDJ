@@ -49,8 +49,8 @@ public class AutoDJ {
 	 * @param args command line parameters (currently not in use)
 	 */
 	public static void main(String[] args) {
-	    	// initialize preferences 
-	    	System.setProperty("java.util.prefs.PreferencesFactory", FilePreferencesFactory.class.getName());
+	 	// initialize preferences 
+	  	System.setProperty("java.util.prefs.PreferencesFactory", FilePreferencesFactory.class.getName());
 	    	
 		// try to use systems look and feel for GUI
 		try {
