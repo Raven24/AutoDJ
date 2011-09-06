@@ -27,6 +27,7 @@ import java.util.Vector;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import AutoDJ.firstrun.Firstrun;
 import AutoDJ.prefs.Settings;
 
 /**
@@ -59,6 +60,18 @@ public class AutoDJController implements Observer {
 	 * interact with.
 	 */
 	public AutoDJController (AutoDJModel m) {
+		if( Settings.get("firstrun", "true").equals("true") ) {
+			Firstrun first = new Firstrun();
+			first.begin();
+		} 
+		initializeDatabase(m);	
+	}
+	
+	/**
+	 * Reads the database credentials from the settings and 
+	 * establishes a connection
+	 */
+	private void initializeDatabase(AutoDJModel m) {
 		final String dbUser=Settings.get("dbUser");
 		final String dbPass=Settings.get("dbPass");
 		final String dbHost=Settings.get("dbHost");
