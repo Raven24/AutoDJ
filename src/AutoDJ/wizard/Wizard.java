@@ -21,6 +21,7 @@
 package AutoDJ.wizard;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -53,8 +54,10 @@ public class Wizard {
 	public static final String BACK_ACTION = "back";
 	public static final String NEXT_ACTION = "next";
 	
-	public static final String FINISH_TEXT = "Finish";
-	public static final String NEXT_TEXT = "Next";
+	public static final String FINISH_TEXT = "<html>Fi<u>n</u>ish</html>";
+	public static final String NEXT_TEXT = "<html><u>N</u>ext<html>";
+	public static final String BACK_TEXT = "<html><u>B</u>ack</html>";
+	public static final String CANCEL_TEXT = "<html><u>C</u>ancel</html>";
  
     public static final int FINISH_RETURN_CODE = 0;
     public static final int CANCEL_RETURN_CODE = 1;
@@ -232,9 +235,9 @@ public class Wizard {
         cardLayout = new CardLayout(); 
         cardPanel.setLayout(cardLayout);
         
-        backButton = new JButton("Back");
+        backButton = new JButton(BACK_TEXT);
         nextButton = new JButton(NEXT_TEXT);
-        cancelButton = new JButton("Cancel");
+        cancelButton = new JButton(CANCEL_TEXT);
         
         backButton.setActionCommand(BACK_ACTION);
         nextButton.setActionCommand(NEXT_ACTION);
@@ -243,6 +246,10 @@ public class Wizard {
         backButton.addActionListener(wizardController);
         nextButton.addActionListener(wizardController);
         cancelButton.addActionListener(wizardController);
+        
+        backButton.setMnemonic(KeyEvent.VK_B);
+        nextButton.setMnemonic(KeyEvent.VK_N);
+        cancelButton.setMnemonic(KeyEvent.VK_C);
         
         //  Create the buttons with a separator above them, then place them
         //  on the east side of the panel with a small amount of space between
