@@ -110,7 +110,7 @@ public class Database extends WizardPanel implements ActionListener, FocusListen
 		panel.add(explanationText, c);
 		c.gridwidth = 1; // reset
 		
-		// type dropdown
+		// db type dropdown
 		dbType = Settings.get("dbType", "...");
 		Vector<String> dbTypes = new Vector<String>();
 		dbTypes.add("...");
@@ -134,7 +134,7 @@ public class Database extends WizardPanel implements ActionListener, FocusListen
 		panel.add(dbOptions, c);
 		
 		// add final text to layout
-		JLabel continueText = new JLabel("<html>When you are finished, click 'finish' to start AutoDJ.</html>");
+		JLabel continueText = new JLabel("<html>When you are done, click 'finish' to start AutoDJ.</html>");
 		c.gridx = 1;
 		c.gridy = 4;
 		c.gridwidth = 4;
@@ -309,6 +309,7 @@ public class Database extends WizardPanel implements ActionListener, FocusListen
 	public void focusLost(FocusEvent evt) {
 		Set<Map.Entry<String, JTextField>> set = mysqlCredentials.entrySet();
 
+		// determine which text field just lost focus
 	    for (Map.Entry<String, JTextField> me : set) {
 	    	if( me.getValue().equals( ((JTextField)evt.getSource()) ) ) {
 	    		Settings.set("db"+me.getKey(), me.getValue().getText());

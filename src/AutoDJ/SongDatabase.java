@@ -30,12 +30,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.HashMap;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
 
 import org.jaudiotagger.tag.datatype.Artwork;
+
+import AutoDJ.prefs.Settings;
 
 /**
  * SongDatabase is a class which represents a song database for AutoDJ.
@@ -52,12 +54,14 @@ public class SongDatabase {
 	 */
 	private final String url;
 	
-	private final String ADD_SONG_QUERY="INSERT INTO songs VALUES (0,?,?,?,?,?,?,?,?,?)";
-	private final String GET_SONG_QUERY="SELECT * FROM songs WHERE artist LIKE ? " +
-			"OR title LIKE ? OR album LIKE ? ORDER BY artist, year, trackno, album";
-	private final String CHANGE_SONG_QUERY="UPDATE songs SET artist=?, title=?, " +
-			"trackno=?, album=?, cover=?, year=?, filename=?, md5sum=? WHERE id=?";
-
+	private HashMap<String, HashMap<String, String> > queryPresets = new HashMap<String, HashMap<String, String> >();
+	
+	private String DESCRIBE_TABLE_QUERY = "";
+	private String ADD_SONG_QUERY = "";
+	private String GET_SONG_QUERY = "";
+	private String CHANGE_SONG_QUERY = "";
+	private String CREATE_SONG_TABLE_QUERY = "";
+	
 	/**
 	 * Creates a new SongDatabase instance to work with and checks, if the
 	 * database exists, if a connection is accepted and the tables have
@@ -69,19 +73,34 @@ public class SongDatabase {
 	 */
 	public SongDatabase(String db) {
 		url = db;
+		
+		initQueryStrings();
 		createConnection();
 		// do we have the tables we need?
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 	    ResultSet rs = null;		
 		try {
-		    stmt = conn.createStatement();
-		    if (stmt.execute("DESCRIBE songs")) {
+			// see, if the songs table exists and has all the fields necessary
+		    stmt = conn.prepareStatement(DESCRIBE_TABLE_QUERY);
+		    stmt.setString(1, "songs");
+		    
+		    if(stmt.execute()) {
 		    	rs = stmt.getResultSet();
+		    	
+		    	// TODO: maybe do something more than just .equals() ...
+		    	if( !rs.next() ||  !rs.getString(1).equals(CREATE_SONG_TABLE_QUERY)) {
+		    		rs.close();
+		    		
+		    		// try to create the songs table
+		    		stmt = conn.prepareStatement(CREATE_SONG_TABLE_QUERY);
+		    		if( !stmt.execute() ) {
+		    			System.out.println("fatal database failure");
+		    			System.exit(0);
+		    		}
+		    	}
 		    }
 		} catch (SQLException ex) {
-	        System.out.println("SQLException: " + ex.getMessage());
-	        System.out.println("SQLState: " + ex.getSQLState());
-	        System.out.println("VendorError: " + ex.getErrorCode());
+			printDbError(ex);
 		} finally {
 			// Ressourcen sollten immer in einem
 		    // finally{}-Block
@@ -90,13 +109,17 @@ public class SongDatabase {
 			if (rs != null) {
 				try {
 		            rs.close();
-		        } catch (SQLException sqlEx) { /* ignore */ }
+		        } catch (SQLException ex) {
+		        	printDbError(ex);
+		        }
 		        rs = null;
 			}
 	        if (stmt != null) {
 		        try {
 		            stmt.close();
-		        } catch (SQLException sqlEx) { /* ignore */ }
+		        } catch (SQLException ex) { 
+		        	printDbError(ex);
+		        }
 		        stmt = null;
 		    }
 		}
@@ -108,15 +131,11 @@ public class SongDatabase {
 	 */
 	private void createConnection() {
 		try {
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
 			conn = DriverManager.getConnection(url);
 		} catch (SQLException ex) {
-	        System.out.println("SQLException: " + ex.getMessage());
-	        System.out.println("SQLState: " + ex.getSQLState());
-	        System.out.println("VendorError: " + ex.getErrorCode());
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			printDbError(ex);
 		}
+		
 	}
 	
 	/**
@@ -126,9 +145,7 @@ public class SongDatabase {
 		try {
 			this.conn.close();
 		} catch (SQLException ex) {
-	        System.out.println("SQLException: " + ex.getMessage());
-	        System.out.println("SQLState: " + ex.getSQLState());
-	        System.out.println("VendorError: " + ex.getErrorCode());
+	        printDbError(ex);
 		}
 	}
 
@@ -152,10 +169,7 @@ public class SongDatabase {
 			statement.execute();
 			closeConnection();
 		} catch (SQLException ex) {
-	        System.out.println("SQLException: " + ex.getMessage());
-	        System.out.println("SQLState: " + ex.getSQLState());
-	        System.out.println("VendorError: " + ex.getErrorCode());
-	        System.out.println("occured for song " + song.getArtist() + " - " + song.getTitle());
+	        printDbError(ex, "occured for song " + song.getArtist() + " - " + song.getTitle());
 		}
 	}
 	
@@ -201,9 +215,7 @@ public class SongDatabase {
 			}
 			closeConnection();
 		} catch (SQLException ex) {
-	        System.out.println("SQLException: " + ex.getMessage());
-	        System.out.println("SQLState: " + ex.getSQLState());
-	        System.out.println("VendorError: " + ex.getErrorCode());
+			printDbError(ex);
 		}
 		return songList;
 	}
@@ -233,10 +245,110 @@ public class SongDatabase {
 			statement.executeUpdate();
 			closeConnection();
 		} catch (SQLException ex) {
-	        System.out.println("SQLException: " + ex.getMessage());
-	        System.out.println("SQLState: " + ex.getSQLState());
-	        System.out.println("VendorError: " + ex.getErrorCode());
-	        System.out.println("occured for song " + newSong.getArtist() + " - " + newSong.getTitle());
+			printDbError(ex, "occured for song " + newSong.getArtist() + " - " + newSong.getTitle());
 		}
 	}	
+	
+	/**
+	 * print a database error nicely
+	 * 
+	 * @param SQLException ex
+	 */
+	private void printDbError(SQLException ex) {
+		printDbError(ex, "");
+	}
+	
+	/**
+	 * print a database error with an additional explanatory text
+	 * 
+	 * @param SQLException ex
+	 * @param String additionalText
+	 */
+	private void printDbError(SQLException ex, String additionalText) {
+		System.out.println("SQLException: " + ex.getMessage());
+        System.out.println("SQLState: " + ex.getSQLState());
+        System.out.println("VendorError: " + ex.getErrorCode());
+        if( !additionalText.isEmpty() ) {
+        	System.out.println(additionalText);
+        }
+        
+        ex.printStackTrace(System.err);
+	}
+	
+	/**
+	 * populates the query strings
+	 */
+	private void initQueryStrings() {
+		
+		// populate the mysql query conainer
+		// use this as starting point for other db types
+		HashMap<String, String> mysqlQueries = new HashMap<String, String>();
+		mysqlQueries.put(
+				"DESCRIBE_TABLE_QUERY", 
+				"DESCRIBE ?");
+		
+		// this has to look exactly like the DESCRIBE_TABLE_QUERY returns it
+		mysqlQueries.put(
+				"CREATE_SONG_TABLE_QUERY", 
+				"CREATE TABLE songs ( " +
+				"id INT AUTO_INCREMENT PRIMARY KEY NOT NULL, " +
+				"artist VARCHAR(50) NOT NULL, " +
+				"title VARCHAR(100) NOT NULL, " +
+				"trackno TINYINT, " +
+				"album VARCHAR(50), " +
+				"cover MEDIUMBLOB, " +
+				"year INT, " +
+				"genre VARCHAR(30), " +
+				"filename VARCHAR(200) NOT NULL, "+
+				"md5sum CHAR(32) NOT NULL "+
+				")");
+		mysqlQueries.put(
+				"ADD_SONG_QUERY", 
+				"INSERT INTO songs VALUES (0,?,?,?,?,?,?,?,?,?)");
+		mysqlQueries.put(
+				"GET_SONG_QUERY",
+				"SELECT * FROM songs WHERE artist LIKE ? " +
+				"OR title LIKE ? OR album LIKE ? ORDER BY artist, year, trackno, album");
+		mysqlQueries.put(
+				"CHANGE_SONG_QUERY", 
+				"UPDATE songs SET artist=?, title=?, " +
+				"trackno=?, album=?, cover=?, year=?, filename=?, md5sum=? WHERE id=?");
+		
+		// populate sqlite query container
+		// just copy the mysql strings and overwrite what's different
+		HashMap<String, String> sqliteQueries = new HashMap<String, String>();
+		sqliteQueries.putAll(mysqlQueries);
+		
+		sqliteQueries.put(
+			"DESCRIBE_TABLE_QUERY", 
+			"SELECT sql FROM sqlite_master WHERE name = ?");
+		
+		// this has to look exactly like the DESCRIBE_TABLE_QUERY returns it
+		sqliteQueries.put(
+				"CREATE_SONG_TABLE_QUERY", 
+				"CREATE TABLE songs\n" +
+				"(id INT PRIMARY KEY NOT NULL,\n"+
+				"artist VARCHAR(50) NOT NULL,\n"+
+				"title VARCHAR(100) NOT NULL,\n"+
+				"trackno TINYINT,\n"+
+				"album VARCHAR(50),\n"+
+				"cover MEDIUMBLOB,\n"+
+				"year INT,\n"+
+				"genre VARCHAR(30),\n"+
+				"filename VARCHAR(200) NOT NULL,\n"+
+				"md5sum CHAR(32) NOT NULL\n"+
+				")");
+		
+		queryPresets.put("mysql", mysqlQueries);
+		queryPresets.put("sqlite", sqliteQueries);
+		
+		// assign the query strings to the variables that get used in the code
+		String dbType = Settings.get("dbType", "mysql");
+		
+		DESCRIBE_TABLE_QUERY = queryPresets.get(dbType).get("DESCRIBE_TABLE_QUERY");
+		ADD_SONG_QUERY = queryPresets.get(dbType).get("ADD_SONG_QUERY");
+		GET_SONG_QUERY = queryPresets.get(dbType).get("GET_SONG_QUERY");
+		CHANGE_SONG_QUERY = queryPresets.get(dbType).get("CHANGE_SONG_QUERY");
+		CREATE_SONG_TABLE_QUERY = queryPresets.get(dbType).get("CREATE_SONG_TABLE_QUERY");
+	}
 }

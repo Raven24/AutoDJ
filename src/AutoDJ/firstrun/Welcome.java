@@ -30,7 +30,8 @@ import AutoDJ.wizard.WizardPanel;
 
 /**
  * @author Florian Staudacher
- * Panel, that shows the welcome message
+ * 
+ * wizard panel that shows a welcome message
  *
  */
 public class Welcome extends WizardPanel {
@@ -40,17 +41,24 @@ public class Welcome extends WizardPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	/** 
+	 * initialize the panel
+	 */
 	public Welcome() {
 		super();
 		
 		setTitle("Hello!");
 	}
 	
+	/**
+	 * put together the gui
+	 */
 	public void initComponents() {
 		JPanel first = new JPanel();
 		first.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		
+		// add welcome text to layout
 		JLabel welcomeText = new JLabel("<html>You appear to be using AutoDJ for the first time.<br><br>" +
 				"This short wizard will take you through the initial steps <br>" +
 				"to get this program working for your setup.<br><br>" +

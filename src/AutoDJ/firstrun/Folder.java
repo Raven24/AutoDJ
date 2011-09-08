@@ -106,6 +106,11 @@ public class Folder extends WizardPanel implements ActionListener {
 		setContent(panel);
 	}
 
+	/**
+	 * action listener for the 'select folder' button
+	 * shows the file dialog to select a music library folder
+	 * and saves the results in the settings
+	 */
 	@Override
 	public void actionPerformed(ActionEvent evt) {
 		int retVal = fileChooser.showOpenDialog(this);
