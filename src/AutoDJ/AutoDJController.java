@@ -213,7 +213,12 @@ public class AutoDJController implements Observer {
 			MimetypesFileTypeMap map = new MimetypesFileTypeMap();
 			// unfortunately this method doesn't know about audio/mpeg
 			map.addMimeTypes("audio/mpeg mp3 MP3 mP3 Mp3");
-			if (map.getContentType(file).equals("audio/mpeg")) mp3file.add(file);
+			map.addMimeTypes("audio/vorbis ogg oga");
+			
+			String fileMime = map.getContentType(file); 
+			if (fileMime.equals("audio/mpeg") || 
+				fileMime.equals("audio/vorbis")) 
+			    mp3file.add(file);
 		}
 		return mp3file;
 	}
