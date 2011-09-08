@@ -83,13 +83,55 @@ public class AutoDJController implements Observer {
 	 * establishes a connection
 	 */
 	private void initializeDatabase(AutoDJModel m) {
-		final String dbUser=Settings.get("dbUser");
-		final String dbPass=Settings.get("dbPass");
-		final String dbHost=Settings.get("dbHost");
-		final String dbName=Settings.get("dbName");
-		final String url="jdbc:mysql://"+dbHost+"/"+dbName+"?user="+dbUser+"&password="+dbPass;
+		String url = "";
+		
+		if( Settings.get("dbType", "mysql").equals("mysql") ) {
+			url = getMySqlConnectionString();
+		} else if( Settings.get("dbType").equals("sqlite")) {
+			url = getSqliteConnectionString();
+		}
+		
 		myDatabase = new SongDatabase(url);
 		model = m;
+	}
+	
+	/**
+	 * build the mysql string from user settings and return it
+	 * 
+	 * @return String mysql connection string
+	 */
+	private String getMySqlConnectionString() {
+		try {
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+		String dbUser=Settings.get("dbUser");
+		String dbPass=Settings.get("dbPass");
+		String dbHost=Settings.get("dbHost");
+		String dbName=Settings.get("dbName");
+		String url="jdbc:mysql://"+dbHost+"/"+dbName+"?user="+dbUser+"&password="+dbPass;
+		
+		return url;
+	}
+	
+	/**
+	 * build the sqlite connections string from user settings
+	 * 
+	 * @return String sqlite connection string
+	 */
+	private String getSqliteConnectionString() {
+		try {
+			Class.forName("org.sqlite.JDBC").newInstance();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+		String dbPath = Settings.get("dbPath");
+		String url = "jdbc:sqlite:"+dbPath+"/AutoDJ.sqlite.db";
+		
+		return url;
 	}
 	
 	/**
