@@ -28,7 +28,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -57,6 +56,7 @@ public class SongDatabase {
 	private String ADD_SONG_QUERY = "";
 	private String GET_SONG_QUERY = "";
 	private String CHANGE_SONG_QUERY = "";
+	private String CREATE_SONG_TABLE_QUERY = "";
 	
 	/**
 	 * Creates a new SongDatabase instance to work with and checks, if the
@@ -73,12 +73,27 @@ public class SongDatabase {
 		initQueryStrings();
 		createConnection();
 		// do we have the tables we need?
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 	    ResultSet rs = null;		
 		try {
-		    stmt = conn.createStatement();
-		    if (stmt.execute(DESCRIBE_TABLE_QUERY)) {
+			// see, if the songs table exists and has all the fields necessary
+		    stmt = conn.prepareStatement(DESCRIBE_TABLE_QUERY);
+		    stmt.setString(1, "songs");
+		    
+		    if(stmt.execute()) {
 		    	rs = stmt.getResultSet();
+		    	
+		    	// TODO: maybe do something more than just .equals() ...
+		    	if( !rs.next() ||  !rs.getString(1).equals(CREATE_SONG_TABLE_QUERY)) {
+		    		rs.close();
+		    		
+		    		// try to create the songs table
+		    		stmt = conn.prepareStatement(CREATE_SONG_TABLE_QUERY);
+		    		if( !stmt.execute() ) {
+		    			System.out.println("fatal database failure");
+		    			System.exit(0);
+		    		}
+		    	}
 		    }
 		} catch (SQLException ex) {
 			printDbError(ex);
@@ -247,6 +262,8 @@ public class SongDatabase {
         if( !additionalText.isEmpty() ) {
         	System.out.println(additionalText);
         }
+        
+        ex.printStackTrace(System.err);
 	}
 	
 	/**
@@ -260,6 +277,22 @@ public class SongDatabase {
 		mysqlQueries.put(
 				"DESCRIBE_TABLE_QUERY", 
 				"DESCRIBE ?");
+		
+		// this has to look exactly like the DESCRIBE_TABLE_QUERY returns it
+		mysqlQueries.put(
+				"CREATE_SONG_TABLE_QUERY", 
+				"CREATE TABLE songs ( " +
+				"id INT AUTO_INCREMENT PRIMARY KEY NOT NULL, " +
+				"artist VARCHAR(50) NOT NULL, " +
+				"title VARCHAR(100) NOT NULL, " +
+				"trackno TINYINT, " +
+				"album VARCHAR(50), " +
+				"cover MEDIUMBLOB, " +
+				"year INT, " +
+				"genre VARCHAR(30), " +
+				"filename VARCHAR(200) NOT NULL, "+
+				"md5sum CHAR(32) NOT NULL "+
+				")");
 		mysqlQueries.put(
 				"ADD_SONG_QUERY", 
 				"INSERT INTO songs VALUES (0,?,?,?,?,?,?,?,?,?)");
@@ -281,6 +314,22 @@ public class SongDatabase {
 			"DESCRIBE_TABLE_QUERY", 
 			"SELECT sql FROM sqlite_master WHERE name = ?");
 		
+		// this has to look exactly like the DESCRIBE_TABLE_QUERY returns it
+		sqliteQueries.put(
+				"CREATE_SONG_TABLE_QUERY", 
+				"CREATE TABLE songs\n" +
+				"(id INT PRIMARY KEY NOT NULL,\n"+
+				"artist VARCHAR(50) NOT NULL,\n"+
+				"title VARCHAR(100) NOT NULL,\n"+
+				"trackno TINYINT,\n"+
+				"album VARCHAR(50),\n"+
+				"cover MEDIUMBLOB,\n"+
+				"year INT,\n"+
+				"genre VARCHAR(30),\n"+
+				"filename VARCHAR(200) NOT NULL,\n"+
+				"md5sum CHAR(32) NOT NULL\n"+
+				")");
+		
 		queryPresets.put("mysql", mysqlQueries);
 		queryPresets.put("sqlite", sqliteQueries);
 		
@@ -291,5 +340,6 @@ public class SongDatabase {
 		ADD_SONG_QUERY = queryPresets.get(dbType).get("ADD_SONG_QUERY");
 		GET_SONG_QUERY = queryPresets.get(dbType).get("GET_SONG_QUERY");
 		CHANGE_SONG_QUERY = queryPresets.get(dbType).get("CHANGE_SONG_QUERY");
+		CREATE_SONG_TABLE_QUERY = queryPresets.get(dbType).get("CREATE_SONG_TABLE_QUERY");
 	}
 }
