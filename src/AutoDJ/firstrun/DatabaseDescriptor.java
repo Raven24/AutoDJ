@@ -24,19 +24,30 @@ import AutoDJ.wizard.WizardPanelDescriptor;
 
 /**
  * @author Florian Staudacher
+ * 
+ * Descriptor class for the 'database' wizard panel
  *
  */
 public class DatabaseDescriptor extends WizardPanelDescriptor {
 	public static final String IDENTIFIER = "DATABASE_PANEL";
     
+	/**
+	 * create an instance of the panel 
+	 */
     public DatabaseDescriptor() {
         super(IDENTIFIER, new Database());
     }
     
+    /**
+     * specify what to do next
+     */
     public String getNextPanelDescriptor() {
         return WizardPanelDescriptor.FINISH_IDENTIFIER;
     }
     
+    /**
+     * specify what to do when we click 'back'
+     */
     public String getBackPanelDescriptor() {
         return FolderDescriptor.IDENTIFIER;
     }	

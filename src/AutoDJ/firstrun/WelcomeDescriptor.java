@@ -25,19 +25,30 @@ import AutoDJ.wizard.WizardPanelDescriptor;
 /**
  * @author Florian Staudacher
  *
+ * panel descriptor for the 'welcome' panel
  */
 public class WelcomeDescriptor extends WizardPanelDescriptor {
 	
 	public static final String IDENTIFIER = "WELCOME_PANEL";
     
+	/**
+	 * instantiate the panel
+	 */
     public WelcomeDescriptor() {
         super(IDENTIFIER, new Welcome());
     }
     
+    /**
+     * specify what to do next
+     */
     public String getNextPanelDescriptor() {
         return FolderDescriptor.IDENTIFIER;
     }
     
+    /**
+     * specify what happens when the user hits 'back'
+     * (in this case the button is disabled)
+     */
     public String getBackPanelDescriptor() {
         return null;
     }

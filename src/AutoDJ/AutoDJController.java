@@ -29,6 +29,7 @@ import javax.activation.MimetypesFileTypeMap;
 
 import AutoDJ.firstrun.Firstrun;
 import AutoDJ.prefs.Settings;
+import AutoDJ.wizard.Wizard;
 
 /**
  * AutoDJController is a class which represents AutoDJ's Controller
@@ -60,10 +61,20 @@ public class AutoDJController implements Observer {
 	 * interact with.
 	 */
 	public AutoDJController (AutoDJModel m) {
+		
+		// if this is the first time the user opens this application
+		// show a short wizard that asks for the most important settings
 		if( Settings.get("firstrun", "true").equals("true") ) {
 			Firstrun first = new Firstrun();
-			first.begin();
+			int retVal = first.begin();
+			
+			if( retVal == Wizard.FINISH_RETURN_CODE) {
+				Settings.set("firstrun", "false");
+			} else {
+				System.exit(0);
+			}
 		} 
+		
 		initializeDatabase(m);	
 	}
 	

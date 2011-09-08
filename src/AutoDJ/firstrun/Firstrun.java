@@ -23,6 +23,13 @@ package AutoDJ.firstrun;
 import AutoDJ.wizard.Wizard;
 import AutoDJ.wizard.WizardPanelDescriptor;
 
+/** 
+ * @author Florian Staudacher
+ *
+ * This class shows a wizard dialogue that is intended to
+ * determine the necessary settings on the first run of AutoDJ
+ * 
+ */
 public class Firstrun {
 	
 	private Wizard wizard;
@@ -38,7 +45,7 @@ public class Firstrun {
 	}
 	
 	/**
-	 * Initialize the vital wizard ui elements
+	 * Initialize and register the wizard panels
 	 */
 	private void initComponents() {
 		WizardPanelDescriptor welcomeDescr = new WelcomeDescriptor();
@@ -52,9 +59,11 @@ public class Firstrun {
 	}
 	
 	/**
-	 * Begins the first step
+	 * Begins the first step and returns the wizard result
+	 * 
+	 * @return Integer wizard status
 	 */
-	public void begin() {
+	public int begin() {
 		try {
 			wizard.setCurrentPanel(WelcomeDescriptor.IDENTIFIER);
 		} catch (Exception e) {
@@ -62,13 +71,13 @@ public class Firstrun {
 		}
 		
 		int ret = wizard.showModalDialog();
-		
-		System.out.println(ret);
-		
-		if(ret == Wizard.CANCEL_RETURN_CODE)
+				
+		if(ret == Wizard.CANCEL_RETURN_CODE) {
+			// TODO: handle this case more gracefully...
 			System.exit(0);
+		}
+		
+		return ret;
 	}
 	
-
-		
 }
