@@ -24,7 +24,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -34,8 +33,6 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
-
-import org.jaudiotagger.tag.datatype.Artwork;
 
 import AutoDJ.prefs.Settings;
 
@@ -76,53 +73,24 @@ public class SongDatabase {
 		
 		initQueryStrings();
 		createConnection();
+		
 		// do we have the tables we need?
-		PreparedStatement stmt = null;
-	    ResultSet rs = null;		
-		try {
-			// see, if the songs table exists and has all the fields necessary
-		    stmt = conn.prepareStatement(DESCRIBE_TABLE_QUERY);
-		    stmt.setString(1, "songs");
-		    
-		    if(stmt.execute()) {
-		    	rs = stmt.getResultSet();
-		    	
-		    	// TODO: maybe do something more than just .equals() ...
-		    	if( !rs.next() ||  !rs.getString(1).equals(CREATE_SONG_TABLE_QUERY)) {
-		    		rs.close();
-		    		
-		    		// try to create the songs table
-		    		stmt = conn.prepareStatement(CREATE_SONG_TABLE_QUERY);
-		    		if( !stmt.execute() ) {
-		    			System.out.println("fatal database failure");
-		    			System.exit(0);
-		    		}
-		    	}
-		    }
-		} catch (SQLException ex) {
-			printDbError(ex);
-		} finally {
-			// Ressourcen sollten immer in einem
-		    // finally{}-Block
-		    // in der umgekehrten Reihenfolge ihrer Zuweisung
-		    // freigegeben werden
-			if (rs != null) {
-				try {
-		            rs.close();
-		        } catch (SQLException ex) {
-		        	printDbError(ex);
-		        }
-		        rs = null;
+		if( !checkTable("songs", CREATE_SONG_TABLE_QUERY) ) {
+		    PreparedStatement stmt = null;	
+		    try {
+		    	// try to create the songs table
+				stmt = conn.prepareStatement(CREATE_SONG_TABLE_QUERY);
+				stmt.execute();
+				
+				if( !checkTable("songs", CREATE_SONG_TABLE_QUERY) ) {
+					System.out.println("fatal database failure");
+					System.exit(0);
+				}
+			} catch (SQLException ex) {
+				printDbError(ex);
 			}
-	        if (stmt != null) {
-		        try {
-		            stmt.close();
-		        } catch (SQLException ex) { 
-		        	printDbError(ex);
-		        }
-		        stmt = null;
-		    }
 		}
+		
 		closeConnection();
 	}
 	
@@ -161,7 +129,7 @@ public class SongDatabase {
 			statement.setString(2, song.getTitle());
 			statement.setInt(3, song.getTrackno());
 			statement.setString(4, song.getAlbum());
-			statement.setBinaryStream(5, new ByteArrayInputStream( song.getCoverBytes() ));
+			statement.setBytes(5, song.getCoverBytes() );
 			statement.setInt(6, song.getYear());
 			statement.setString(7, song.getGenre());
 			statement.setString(8, song.getFile().getAbsolutePath());
@@ -197,10 +165,10 @@ public class SongDatabase {
 				String title        = rs.getString("title");
 				int trackno         = rs.getInt("trackno");
 				String album        = rs.getString("album");
-				Blob coverBlob      = rs.getBlob("cover");
+				byte[] coverBlob      = rs.getBytes("cover");
 				BufferedImage cover = null;
 				try {
-					cover = ImageIO.read(new ByteArrayInputStream(coverBlob.getBytes((long) 1, (int) coverBlob.length())));
+					cover = ImageIO.read(new ByteArrayInputStream(coverBlob));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -237,7 +205,7 @@ public class SongDatabase {
 			statement.setString(2, newSong.getTitle());
 			statement.setInt(3, newSong.getTrackno());
 			statement.setString(4, newSong.getAlbum());
-			statement.setBinaryStream(5, new ByteArrayInputStream(newSong.getCoverBytes()));
+			statement.setBytes(5, newSong.getCoverBytes());
 			statement.setInt(6, newSong.getYear());
 			statement.setString(7, newSong.getFile().getAbsolutePath());
 			statement.setString(8, newSong.getMD5sum());
@@ -304,7 +272,9 @@ public class SongDatabase {
 				")");
 		mysqlQueries.put(
 				"ADD_SONG_QUERY", 
-				"INSERT INTO songs VALUES (0,?,?,?,?,?,?,?,?,?)");
+				"INSERT INTO songs " +
+				"(artist, title, trackno, album, cover, year, genre, filename, md5sum)" +
+				"VALUES (?,?,?,?,?,?,?,?,?)");
 		mysqlQueries.put(
 				"GET_SONG_QUERY",
 				"SELECT * FROM songs WHERE artist LIKE ? " +
@@ -327,16 +297,16 @@ public class SongDatabase {
 		sqliteQueries.put(
 				"CREATE_SONG_TABLE_QUERY", 
 				"CREATE TABLE songs\n" +
-				"(id INT PRIMARY KEY NOT NULL,\n"+
-				"artist VARCHAR(50) NOT NULL,\n"+
-				"title VARCHAR(100) NOT NULL,\n"+
-				"trackno TINYINT,\n"+
-				"album VARCHAR(50),\n"+
-				"cover MEDIUMBLOB,\n"+
-				"year INT,\n"+
-				"genre VARCHAR(30),\n"+
-				"filename VARCHAR(200) NOT NULL,\n"+
-				"md5sum CHAR(32) NOT NULL\n"+
+				"(id INTEGER PRIMARY KEY NOT NULL,\n"+
+				"artist TEXT(50) NOT NULL,\n"+
+				"title TEXT(100) NOT NULL,\n"+
+				"trackno INTEGER,\n"+
+				"album TEXT(50),\n"+
+				"cover BLOB,\n"+
+				"year INTEGER,\n"+
+				"genre TEXT(30),\n"+
+				"filename TEXT(200) NOT NULL,\n"+
+				"md5sum TEXT(32) NOT NULL\n"+
 				")");
 		
 		queryPresets.put("mysql", mysqlQueries);
@@ -350,5 +320,38 @@ public class SongDatabase {
 		GET_SONG_QUERY = queryPresets.get(dbType).get("GET_SONG_QUERY");
 		CHANGE_SONG_QUERY = queryPresets.get(dbType).get("CHANGE_SONG_QUERY");
 		CREATE_SONG_TABLE_QUERY = queryPresets.get(dbType).get("CREATE_SONG_TABLE_QUERY");
+	}
+	
+	/**
+	 * see, if the a table is useable
+	 *
+	 * @param String table name
+	 * @param String createStatement (must be equal to what describe returns)
+	 */
+	private boolean checkTable(String table, String createStatement) {
+		try {
+			PreparedStatement stmt = conn.prepareStatement(DESCRIBE_TABLE_QUERY);
+		
+			stmt.setString(1, table);
+	
+			if( !stmt.execute() ) {
+				return false;
+			}
+	
+			ResultSet rs = stmt.getResultSet();
+			
+			if( !rs.next() || !rs.getString(1).equals(createStatement) ) {
+				rs.close();
+				return false;
+			}
+	
+			rs.close();
+			return true;
+			
+		} catch(SQLException ex) {
+			printDbError(ex);
+		}
+		
+		return false;
 	}
 }
