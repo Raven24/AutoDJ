@@ -268,6 +268,12 @@ public class AutoDJController implements Observer {
 				}
 			} else if (message.getMessage()==ObserverMessage.REMOVE_SONG_FROM_PLAYLIST) {
 				model.removeFromPlaylist(((AutoDJView) view).getSelectedPlaylistSongs());
+			} else if (message.getMessage()==ObserverMessage.MOVE_SONG_DOWN_IN_PLAYLIST) {
+				int index = model.moveSongInPlaylist(((AutoDJView) view).getSelectedPlaylistIndex(), 1);
+				((AutoDJView) view).setSelectedPlaylistIndex(index);
+			} else if (message.getMessage()==ObserverMessage.MOVE_SONG_UP_IN_PLAYLIST) {
+				int index = model.moveSongInPlaylist(((AutoDJView) view).getSelectedPlaylistIndex(), -1);
+				((AutoDJView) view).setSelectedPlaylistIndex(index);
 			}
 		} else {
 			System.out.println ("Unknown Observer-Message caught!");

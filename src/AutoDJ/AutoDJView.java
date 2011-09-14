@@ -382,6 +382,22 @@ public class AutoDJView extends Observable implements Observer {
 	}
 	
 	/**
+	 * Returns the current selected index of the playlist.
+	 * @return the current selected index of the playlist.
+	 */
+	public int getSelectedPlaylistIndex() {
+		return playlistList.getSelectedIndex();
+	}
+	
+	/**
+	 * Sets the current selected index of the playlist.
+	 */
+	public void setSelectedPlaylistIndex(int index) {
+		playlistList.setSelectedIndex(index);
+	}
+	
+	
+	/**
 	 * Returns the current selected values of the library.
 	 * @return the current selected values of the library.
 	 */

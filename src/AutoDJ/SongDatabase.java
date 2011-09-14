@@ -248,16 +248,16 @@ public class SongDatabase {
 	 */
 	private void initQueryStrings() {
 		
-		// populate the mysql query conainer
+		// populate the mysql query container
 		// use this as starting point for other db types
 		HashMap<String, String> mysqlQueries = new HashMap<String, String>();
 		mysqlQueries.put(
-				"DESCRIBE_TABLE_QUERY", 
-				"DESCRIBE ?");
+				"DESCRIBE_TABLE_QUERY",
+				"DESCRIBE ");
 		
 		// this has to look exactly like the DESCRIBE_TABLE_QUERY returns it
 		mysqlQueries.put(
-				"CREATE_SONG_TABLE_QUERY", 
+				"CREATE_SONG_TABLE_QUERY",
 				"CREATE TABLE songs ( " +
 				"id INT AUTO_INCREMENT PRIMARY KEY NOT NULL, " +
 				"artist VARCHAR(50) NOT NULL, " +
@@ -330,9 +330,8 @@ public class SongDatabase {
 	 */
 	private boolean checkTable(String table, String createStatement) {
 		try {
-			PreparedStatement stmt = conn.prepareStatement(DESCRIBE_TABLE_QUERY);
-		
-			stmt.setString(1, table);
+			String query = DESCRIBE_TABLE_QUERY + table;
+			PreparedStatement stmt = conn.prepareStatement(query);
 	
 			if( !stmt.execute() ) {
 				return false;
@@ -340,7 +339,7 @@ public class SongDatabase {
 	
 			ResultSet rs = stmt.getResultSet();
 			
-			if( !rs.next() || !rs.getString(1).equals(createStatement) ) {
+			if( !rs.next() ) {
 				rs.close();
 				return false;
 			}

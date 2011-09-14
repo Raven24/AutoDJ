@@ -129,6 +129,26 @@ public class AutoDJModel extends Observable {
 	}
 	
 	/**
+	 * Changes the sort order of songs in the playlist, i.e. moves a song up or down 1 position
+	 * @param index The index of the song to be moved
+	 * @param direction determines if the song is to be moved up or down.
+	 * allowed values: +1 for moving the song down (i.e. song index is increased)
+	 * -1 for moving the song up (i.e. song index is decreased)
+	 * do nothing if index <0 (no song was selected)
+	 */
+	public int moveSongInPlaylist(int index, int direction) {
+		if ( (index+direction) >= 0  &&  (index+direction) < playlist.size() ) {
+			Song thisSong = playlist.elementAt(index);
+			playlist.remove(index);
+			playlist.add(index+direction, thisSong);
+			setChanged();
+			notifyObservers(new ObserverMessage(ObserverMessage.PLAYLIST_CHANGED));
+			return index+direction;
+		}
+		return -1;
+	}
+	
+	/**
 	 * Sets the current playlist.
 	 * @param playlist A Vector of Song objects.
 	 */
