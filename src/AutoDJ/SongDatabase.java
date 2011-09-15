@@ -25,13 +25,13 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Vector;
-
 import javax.imageio.ImageIO;
 
 import AutoDJ.prefs.Settings;
@@ -53,7 +53,6 @@ public class SongDatabase {
 	
 	private HashMap<String, HashMap<String, String> > queryPresets = new HashMap<String, HashMap<String, String> >();
 	
-	private String DESCRIBE_TABLE_QUERY = "";
 	private String ADD_SONG_QUERY = "";
 	private String GET_SONG_QUERY = "";
 	private String CHANGE_SONG_QUERY = "";
@@ -75,21 +74,7 @@ public class SongDatabase {
 		createConnection();
 		
 		// do we have the tables we need?
-		if( !checkTable("songs", CREATE_SONG_TABLE_QUERY) ) {
-		    PreparedStatement stmt = null;	
-		    try {
-		    	// try to create the songs table
-				stmt = conn.prepareStatement(CREATE_SONG_TABLE_QUERY);
-				stmt.execute();
-				
-				if( !checkTable("songs", CREATE_SONG_TABLE_QUERY) ) {
-					System.out.println("fatal database failure");
-					System.exit(0);
-				}
-			} catch (SQLException ex) {
-				printDbError(ex);
-			}
-		}
+		checkTable("songs", CREATE_SONG_TABLE_QUERY);
 		
 		closeConnection();
 	}
@@ -251,9 +236,6 @@ public class SongDatabase {
 		// populate the mysql query container
 		// use this as starting point for other db types
 		HashMap<String, String> mysqlQueries = new HashMap<String, String>();
-		mysqlQueries.put(
-				"DESCRIBE_TABLE_QUERY",
-				"DESCRIBE ");
 		
 		// this has to look exactly like the DESCRIBE_TABLE_QUERY returns it
 		mysqlQueries.put(
@@ -289,24 +271,20 @@ public class SongDatabase {
 		HashMap<String, String> sqliteQueries = new HashMap<String, String>();
 		sqliteQueries.putAll(mysqlQueries);
 		
-		sqliteQueries.put(
-			"DESCRIBE_TABLE_QUERY", 
-			"SELECT sql FROM sqlite_master WHERE name = ?");
-		
 		// this has to look exactly like the DESCRIBE_TABLE_QUERY returns it
 		sqliteQueries.put(
 				"CREATE_SONG_TABLE_QUERY", 
-				"CREATE TABLE songs\n" +
-				"(id INTEGER PRIMARY KEY NOT NULL,\n"+
-				"artist TEXT(50) NOT NULL,\n"+
-				"title TEXT(100) NOT NULL,\n"+
-				"trackno INTEGER,\n"+
-				"album TEXT(50),\n"+
-				"cover BLOB,\n"+
-				"year INTEGER,\n"+
-				"genre TEXT(30),\n"+
-				"filename TEXT(200) NOT NULL,\n"+
-				"md5sum TEXT(32) NOT NULL\n"+
+				"CREATE TABLE songs " +
+				"(id INTEGER PRIMARY KEY NOT NULL, "+
+				"artist TEXT(50) NOT NULL, "+
+				"title TEXT(100) NOT NULL, "+
+				"trackno INTEGER, "+
+				"album TEXT(50), "+
+				"cover BLOB, "+
+				"year INTEGER, "+
+				"genre TEXT(30), "+
+				"filename TEXT(200) NOT NULL, "+
+				"md5sum TEXT(32) NOT NULL "+
 				")");
 		
 		queryPresets.put("mysql", mysqlQueries);
@@ -315,7 +293,6 @@ public class SongDatabase {
 		// assign the query strings to the variables that get used in the code
 		String dbType = Settings.get("dbType", "mysql");
 		
-		DESCRIBE_TABLE_QUERY = queryPresets.get(dbType).get("DESCRIBE_TABLE_QUERY");
 		ADD_SONG_QUERY = queryPresets.get(dbType).get("ADD_SONG_QUERY");
 		GET_SONG_QUERY = queryPresets.get(dbType).get("GET_SONG_QUERY");
 		CHANGE_SONG_QUERY = queryPresets.get(dbType).get("CHANGE_SONG_QUERY");
@@ -323,31 +300,77 @@ public class SongDatabase {
 	}
 	
 	/**
-	 * see, if the a table is useable
+	 * see if the a table is useable
+	 * if it doesn't exist, try to create it
 	 *
 	 * @param String table name
 	 * @param String createStatement (must be equal to what describe returns)
+	 * @return boolean success
 	 */
-	private boolean checkTable(String table, String createStatement) {
+	private boolean checkTable(String table, String createStatement)
+	{
+		return checkTable(table, createStatement, true);
+	}
+	
+	/**
+	 * see if a table is useable
+	 * 
+	 * @param String table name
+	 * @param String create table statement
+	 * @param boolean whether to try to create it, if it doesn't exists, or not
+	 * 
+	 * @return boolean success
+	 */
+	private boolean checkTable(String table, String createStatement, boolean tryCreate) {
 		try {
-			String query = DESCRIBE_TABLE_QUERY + table;
-			PreparedStatement stmt = conn.prepareStatement(query);
-	
-			if( !stmt.execute() ) {
-				return false;
-			}
-	
-			ResultSet rs = stmt.getResultSet();
+			DatabaseMetaData dbm = conn.getMetaData();
+			ResultSet rs = dbm.getTables(null, null, table, null);
 			
 			if( !rs.next() ) {
+				// the table doesn't seem to exists, try to create it
+				if( tryCreate == true ) {
+					// createTable() internally calls checkTable() again,
+					// so we can return that result here
+					return createTable(table, createStatement);
+				}
+				
+				// close result set and return with failure
 				rs.close();
 				return false;
 			}
 	
+			// the table exists, we're finished, success!
 			rs.close();
 			return true;
 			
 		} catch(SQLException ex) {
+			printDbError(ex);
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * create a table
+	 * 
+	 * @param String table name
+	 * @param String create statement
+	 * @return boolean success
+	 */
+	private boolean createTable(String tableName, String createStatement) {
+		try {
+	    	// try to create a table
+			PreparedStatement stmt = conn.prepareStatement(createStatement);
+			stmt.execute();
+			
+			// did we succeed?
+			if( !checkTable(tableName, createStatement, false) ) {
+				System.err.println("fatal database failure");
+				System.exit(0);
+			} else {
+				return true;
+			}
+		} catch (SQLException ex) {
 			printDbError(ex);
 		}
 		
